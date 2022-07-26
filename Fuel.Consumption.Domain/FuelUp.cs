@@ -7,6 +7,8 @@ public interface IFuelUpService
 {
     Task<FuelUp> GetById(string id);
     Task Add(FuelUp fuelUp);
+    Task<int> Count(IEnumerable<string> vehicles, DateTime? startDate, DateTime? endDate);
+    Task<IEnumerable<FuelUp>> Search(int skip, int take, IEnumerable<string> vehicle, DateTime? startDate, DateTime? endDate);
 }
 
 public class FuelUp

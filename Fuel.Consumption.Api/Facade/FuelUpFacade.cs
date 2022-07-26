@@ -45,6 +45,11 @@ public class FuelUpFacade:IFuelUpFacade
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)
     {
-        throw new NotImplementedException();
+        var countTask = _service.Count(request.Filter.Vehicles, request.Filter.StartDate, request.Filter.EndDate);
+        var itemsTask = _service.Search(request.Skip, request.Take, request.Filter.Vehicles, request.Filter.StartDate,
+            request.Filter.EndDate);
+
+        await Task.WhenAll(countTask, itemsTask);
+        
     }
 }
