@@ -19,7 +19,7 @@ public class VehicleFacade:IVehicleFacade
         var exists = await _service.GetByName(request.Name, user.Id);
         if (exists != null)
             throw new ContentExistsException("Araç");
-        
-        await _service.Add(request.ToDomain());
+
+        await _service.Add(request.ToDomain(user.Id));
     }
 }

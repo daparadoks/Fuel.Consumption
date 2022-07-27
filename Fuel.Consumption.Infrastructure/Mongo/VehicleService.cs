@@ -14,7 +14,7 @@ public class VehicleService:Repository<Vehicle>, IVehicleService
 
     public async Task Add(Vehicle vehicle) => await _collection.InsertOneAsync(vehicle);
 
-    public async Task<Vehicle> GetByName(string name, Guid userId) =>
+    public async Task<Vehicle> GetByName(string name, string userId) =>
         await _collection.Find(x => x.Name == name && x.UserId == userId).FirstOrDefaultAsync();
 
     public async Task<Vehicle> GetById(string vehicleId) =>

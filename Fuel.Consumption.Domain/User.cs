@@ -2,12 +2,12 @@
 
 public class User
 {
-    public User(Guid id, string username)
+    public User(string id, string username)
     {
         Id = id;
         Username = username;
     }
 
-    public Guid Id { get; }
+    public string Id { get; }
     public string Username { get; }
 }

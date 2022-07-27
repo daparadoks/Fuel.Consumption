@@ -10,4 +10,6 @@ public interface IFuelUpFacade
     Task Add(FuelUpRequest request, User user);
     Task Update(string id, FuelUpRequest request, User user);
     Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user);
+    Task BulkAdd(BulkAddRequest request, User user);
+    Task Delete(string id, User user);
 }

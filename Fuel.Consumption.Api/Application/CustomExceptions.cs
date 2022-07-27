@@ -36,3 +36,12 @@ public class NotFoundException : CustomExceptions
 
     }
 }
+
+public class OdometerInvalidException : CustomExceptions
+{
+    public OdometerInvalidException(int startOdometer, int lastOdometer) : base(400,
+        $"Girmiş olduğunuz odometre değeri {startOdometer} son girilen değer olan {lastOdometer}'dan büyük olmalıdır.")
+    {
+
+    }
+}

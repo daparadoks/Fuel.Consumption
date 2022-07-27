@@ -15,5 +15,6 @@ public static class ServiceRegistrationExtension
         services.AddScoped<IFuelUpFacade, FuelUpFacade>();
         
         services.AddScoped<IFuelUpService, FuelUpService>();
+        services.AddScoped<IVehicleService, VehicleService>();
     }
 }

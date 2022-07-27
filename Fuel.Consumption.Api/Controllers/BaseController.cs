@@ -20,5 +20,5 @@ public class BaseController:ControllerBase
     }
 
     protected static User ToUser(ClaimsPrincipal user) =>
-        new(Guid.Parse("4ddeea2a-80d7-441a-8103-99267a9da4a3"), "paradox");
+        new("4ddeea2a-80d7-441a-8103-99267a9da4a3", "paradox");
 }
