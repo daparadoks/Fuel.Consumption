@@ -56,6 +56,10 @@ builder.Services.AddSwaggerGen(swagger =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.Register(builder.Configuration);
+builder.Services.AddCors(x => x.AddPolicy(name: "mycorssettings", builder =>
+{
+    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+}));
 
 var app = builder.Build();
 
@@ -69,7 +73,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors(x =>
 {
-    x.AllowAnyHeader().AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
 });
 
 app.UseAuthorization();

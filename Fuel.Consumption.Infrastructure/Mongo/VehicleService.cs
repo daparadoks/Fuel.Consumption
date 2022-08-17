@@ -19,4 +19,7 @@ public class VehicleService:Repository<Vehicle>, IVehicleService
 
     public async Task<Vehicle> GetById(string vehicleId) =>
         await _collection.Find(x => x.Id == vehicleId).FirstOrDefaultAsync();
+
+    public async Task<IEnumerable<Vehicle>> GetByUserId(string userId) =>
+        await _collection.Find(x => x.UserId == userId).ToListAsync();
 }

@@ -7,7 +7,8 @@ function Search(){
     const request = {
         Filter: {
             StartDate: $('#startDate').val(),
-            EndDate: $('#endDate').val()
+            EndDate: $('#endDate').val(),
+            VehicleId: ''
         },
         Page: 1,
         Take: 50
@@ -16,13 +17,20 @@ function Search(){
     $.ajax({
         type: 'POST',
         url: BASE_URL + 'FuelUp/search',
-        data: request,
+        data: JSON.stringify(request),
         dataType: 'application/json',
+        contentType: 'application/json',
         success: function(response){
             if(response.data.Success){
                 let asd = '';
             }
         }
+    });
+}
+
+function GetVehicles(){
+    $.get(BASE_URL + 'vehicle', function(response){
+        
     });
 }
 
