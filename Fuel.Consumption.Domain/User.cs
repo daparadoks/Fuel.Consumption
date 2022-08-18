@@ -1,5 +1,10 @@
 ﻿namespace Fuel.Consumption.Domain;
 
+public interface IUserService
+{
+    Task<User> GetByUsername(string username);
+}
+
 public class User
 {
     public User(string id, string username)
@@ -8,6 +13,7 @@ public class User
         Username = username;
     }
 
-    public string Id { get; }
-    public string Username { get; }
+    public string Id { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
 }

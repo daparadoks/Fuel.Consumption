@@ -1,6 +1,11 @@
+using System.Text;
 using Fuel.Consumption.Api;
+using Fuel.Consumption.Infrastructure.Configs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +25,9 @@ builder.Services.AddVersionedApiExplorer(options =>
     options.GroupNameFormat = "'v'VVV";
     options.SubstituteApiVersionInUrl = true;
 });
+
+IConfiguration configuration = null;
+builder.Services.Configure<ApiConfig>(configuration);
 
 builder.Services.AddSwaggerGen(swagger =>
 {
@@ -60,7 +68,22 @@ builder.Services.AddCors(x => x.AddPolicy(name: "mycorssettings", builder =>
 {
     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 }));
-
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = configuration["Jwt:Issuer"],
+        ValidAudience = configuration["Jwt:Issuer"],
+        IssuerSigningKey = new
+            SymmetricSecurityKey
+            (Encoding.UTF8.GetBytes
+                (configuration["Jwt:Secret"]))
+    };
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

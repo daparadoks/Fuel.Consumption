@@ -1,10 +1,13 @@
 ﻿using Fuel.Consumption.Api.Facade.Interface;
 using Fuel.Consumption.Api.Facade.Request;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Fuel.Consumption.Api.Controllers;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class FuelUpController:BaseController
 {
     private readonly IFuelUpFacade _facade;
