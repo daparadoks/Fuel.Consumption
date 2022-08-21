@@ -22,4 +22,7 @@ public class VehicleService:Repository<Vehicle>, IVehicleService
 
     public async Task<IEnumerable<Vehicle>> GetByUserId(string userId) =>
         await _collection.Find(x => x.UserId == userId).ToListAsync();
+
+    public async Task<IEnumerable<Vehicle>> GetAll() =>
+        await _collection.Find(x => true).ToListAsync();
 }

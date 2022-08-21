@@ -32,4 +32,22 @@ public class UserFacade:IUserFacade
 
         return new LoginResponse(user, token);
     }
+
+    public async Task Register(RegisterRequest request)
+    {
+        await Validate(request);
+        
+        var user = request.ToEntity();
+        await _service.Add(user);
+    }
+
+    private async Task Validate(RegisterRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+            throw new RegisterDetailsIsRequiredException();
+        
+        var existsUser = await _service.GetByUsername(request.Username);
+        if (existsUser != null)
+            throw new UserIsExistsException(request.Username);
+    }
 }

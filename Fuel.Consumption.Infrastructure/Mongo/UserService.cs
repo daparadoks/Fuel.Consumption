@@ -13,4 +13,6 @@ public class UserService:Repository<User>,IUserService
 
     public async Task<User> GetByUsername(string username) =>
         await _collection.Find(x => x.Username == username).FirstOrDefaultAsync();
+
+    public async Task Add(User user) => await _collection.InsertOneAsync(user);
 }

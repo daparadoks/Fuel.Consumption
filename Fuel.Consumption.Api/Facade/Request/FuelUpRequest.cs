@@ -18,7 +18,7 @@ public class FuelUpRequest
     public DateTime FuelUpDate { get; set; }
     public int? TimeZone { get; set; }
 
-    public FuelUp ToDomain(string userId, double consumption, int lastOdometer) => new(VehicleId,
+    public FuelUp ToDomain(string userId, double consumption, int lastOdometer, int index) => new(VehicleId,
         Odometer,
         ToDistance(lastOdometer),
         Amount,
@@ -31,8 +31,10 @@ public class FuelUpRequest
         FuelType,
         Brand,
         userId,
+        index,
         ToNow(),
-        FuelUpDate);
+        FuelUpDate,
+        "");
 
     private DateTime ToNow() => DateTime.UtcNow.AddHours(TimeZone ?? EssentialConstants.DefaultTimeZone);
 

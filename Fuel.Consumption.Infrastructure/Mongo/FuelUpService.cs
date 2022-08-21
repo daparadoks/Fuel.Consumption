@@ -1,6 +1,5 @@
 ﻿using Fuel.Consumption.Domain;
 using Fuel.Consumption.Infrastructure.Configs;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -8,11 +7,8 @@ namespace Fuel.Consumption.Infrastructure.Mongo;
 
 public class FuelUpService:Repository<FuelUp>, IFuelUpService
 {
-    private readonly ILogger<FuelUpService> _logger;
-
-    public FuelUpService(IOptions<ApiConfig> options, ILogger<FuelUpService> logger): base(options.Value.ConnectionStrings.Mongo)
+    public FuelUpService(IOptions<ApiConfig> options): base(options.Value.ConnectionStrings.Mongo)
     {
-        _logger = logger;
     }
 
     public async Task<FuelUp> GetById(string id) => await _collection.Find(x => x.Id == id).FirstOrDefaultAsync();
@@ -46,4 +42,17 @@ public class FuelUpService:Repository<FuelUp>, IFuelUpService
             .ToListAsync();
 
     public async Task Delete(string id) => await _collection.DeleteOneAsync(x => x.Id == id);
+
+    public async Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId) =>
+        await _collection.Find(x => x.VehicleId == vehicleId).ToListAsync();
+
+    public async Task Update(FuelUp fuelUp) => await _collection.ReplaceOneAsync(x => x.Id == fuelUp.Id, fuelUp);
+
+    public async Task<int> GetLastIndex(string vehicleId)
+    {
+        var vehicle = await _collection.Find(x => x.VehicleId == vehicleId).SortByDescending(x => x.Index)
+            .FirstOrDefaultAsync();
+
+        return vehicle?.Index ?? 0;
+    }
 }

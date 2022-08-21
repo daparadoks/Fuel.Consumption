@@ -1,4 +1,6 @@
-﻿function Init(){
+﻿
+function Init(){
+    ValidateToken();
     $('#startDate').val(new Date().addDays(-7).toDateInputValue());
     $('#endDate').val(new Date().toDateInputValue());
     Search();
@@ -20,6 +22,9 @@ function Search(){
         data: JSON.stringify(request),
         dataType: 'application/json',
         contentType: 'application/json',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Bearer "+ USER_TOKEN);
+        },
         success: function(response){
             if(response.data.Success){
                 let asd = '';

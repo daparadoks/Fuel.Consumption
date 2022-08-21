@@ -18,7 +18,7 @@ public class BulkAddItem
     public string Brand { get; set; }
     public DateTime FuelUpDate { get; set; }
     
-    public FuelUp ToDomain(string vehicleId, string userId, int currency, int fuelType, int fuelRate, int? timeZone) => new(vehicleId,
+    public FuelUp ToDomain(string vehicleId, string userId, int currency, int fuelType, int fuelRate, int timeZone, int index) => new(vehicleId,
         (int)Odometer,
         (int)Distance,
         Amount,
@@ -31,6 +31,8 @@ public class BulkAddItem
         fuelRate,
         Brand,
         userId,
-        DateTime.UtcNow.AddHours(timeZone ?? EssentialConstants.DefaultTimeZone),
-        FuelUpDate);
+        index,
+        DateTime.UtcNow.AddHours(timeZone),
+        FuelUpDate,
+        "");
 }

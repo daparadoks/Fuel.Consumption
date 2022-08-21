@@ -61,3 +61,19 @@ public class HashNotSupportedException : CustomException
         
     }
 }
+
+public class UserIsExistsException : CustomException
+{
+    public UserIsExistsException(string username):base(400,$"{username} adlı kullanıcı mevcut")
+    {
+        
+    }
+}
+
+public class RegisterDetailsIsRequiredException : CustomException
+{
+    public RegisterDetailsIsRequiredException() : base(400, "Bilgileri eksiz girmeniz gerekmektedir")
+    {
+
+    }
+}

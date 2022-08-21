@@ -3,6 +3,7 @@ using Fuel.Consumption.Api.Facade.Interface;
 using Fuel.Consumption.Api.Facade.Request;
 using Fuel.Consumption.Api.Facade.Response;
 using Fuel.Consumption.Domain;
+using Fuel.Consumption.Infrastructure.Constants;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -42,7 +43,12 @@ public class FuelUpFacade:IFuelUpFacade
         var lastCompleted = await _service.FindLastCompleted(request.VehicleId);
         var startOdometer = lastCompleted.Odometer;
         var fuelUpsToCalculate = new List<FuelUp> { lastCompleted };
-        var missed = await _service.FindAfter(request.VehicleId, lastCompleted.FuelUpDate);
+        var missedTask = _service.FindAfter(request.VehicleId, lastCompleted.FuelUpDate);
+        var indexTask = _service.GetLastIndex(request.VehicleId);
+        await Task.WhenAll(missedTask, indexTask);
+        
+        var missed = missedTask.Result;
+        var index = indexTask.Result + 1;
         fuelUpsToCalculate.AddRange(missed);
         var lastOdometer = fuelUpsToCalculate.Max(x => x.Odometer);
         if (lastOdometer >= request.Odometer)
@@ -50,7 +56,9 @@ public class FuelUpFacade:IFuelUpFacade
         
         var totalAmount = fuelUpsToCalculate.Sum(x => x.Amount);
         
-        await _service.Add(request.ToDomain(user.Id, CalculateConsumption(startOdometer, request.Odometer, totalAmount), lastOdometer));//todo: calculate
+        //todo: calculate
+        await _service.Add(request.ToDomain(user.Id, CalculateConsumption(startOdometer, request.Odometer, totalAmount),
+            lastOdometer, index));
     }
 
     private double CalculateConsumption(int startOdometer, int endOdometer, double totalAmount)
@@ -96,8 +104,9 @@ public class FuelUpFacade:IFuelUpFacade
         foreach (var bulkItem in request.Items)
         {
             var vehicle = await GetVehicle(user, bulkItem);
+            var index = await _service.GetLastIndex(vehicle.Id);
             var fuelUp = bulkItem.ToDomain(vehicle.Id, user.Id, request.Currency, request.FuelType, request.FuelRate,
-                request.TimeZone);
+                request.TimeZone ?? EssentialConstants.DefaultTimeZone, index + 1);
             await _service.Add(fuelUp);
         }
     }
@@ -109,6 +118,21 @@ public class FuelUpFacade:IFuelUpFacade
             throw new NotFoundException("Yakıt bilgisi");
 
         await _service.Delete(id);
+        await ReOrderFuelUps(id);
+    }
+
+    private async Task ReOrderFuelUps(string vehicleId)
+    {
+        var fuelUps = await _service.GetByVehicleId(vehicleId);
+        var index = 1;
+        foreach (var fuelUp in fuelUps.OrderBy(x=>x.FuelUpDate))
+        {
+            await _service.Update(new FuelUp(fuelUp.VehicleId, fuelUp.Odometer, fuelUp.Distance,
+                fuelUp.Amount, fuelUp.Consumption, fuelUp.Price, fuelUp.Currency, fuelUp.Complete,
+                fuelUp.CityPercentage, fuelUp.FuelType, fuelUp.FuelRate, fuelUp.Brand, fuelUp.UserId, index,
+                fuelUp.CreatedAt, fuelUp.FuelUpDate, fuelUp.Id));
+            index++;
+        }
     }
 
     private async Task<Vehicle> GetVehicle(User user, BulkAddItem bulkItem)

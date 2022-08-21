@@ -9,6 +9,7 @@ public interface IVehicleService
     Task<Vehicle> GetByName(string name, string userId);
     Task<Vehicle> GetById(string vehicleId);
     Task<IEnumerable<Vehicle>> GetByUserId(string userId);
+    Task<IEnumerable<Vehicle>> GetAll();
 }
 
 public class Vehicle

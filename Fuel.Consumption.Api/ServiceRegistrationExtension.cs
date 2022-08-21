@@ -13,8 +13,11 @@ public static class ServiceRegistrationExtension
         services.Configure<ApiConfig>(configuration);
 
         services.AddScoped<IFuelUpFacade, FuelUpFacade>();
+        services.AddScoped<IVehicleFacade, VehicleFacade>();
+        services.AddScoped<IUserFacade, UserFacade>();
         
         services.AddScoped<IFuelUpService, FuelUpService>();
         services.AddScoped<IVehicleService, VehicleService>();
+        services.AddScoped<IUserService, UserService>();
     }
 }

@@ -12,6 +12,9 @@ public interface IFuelUpService
     Task<FuelUp> FindLastCompleted(string vehicleId);
     Task<IList<FuelUp>> FindAfter(string vehicleId, DateTime endDate);
     Task Delete(string id);
+    Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId);
+    Task Update(FuelUp fuelUp);
+    Task<int> GetLastIndex(string vehicleId);
 }
 
 public class FuelUp
@@ -22,7 +25,7 @@ public class FuelUp
     }
 
     public FuelUp(string vehicleId, int odometer, int distance, double amount, double consumption, double price, int currency, bool complete,
-        int cityPercentage, int fuelType, int fuelRate, string brand, string userId, DateTime createdAt, DateTime fuelUpDate)
+        int cityPercentage, int fuelType, int fuelRate, string brand, string userId, int index, DateTime createdAt, DateTime fuelUpDate, string id)
     {
         VehicleId = vehicleId;
         Odometer = odometer;
@@ -37,8 +40,10 @@ public class FuelUp
         FuelRate = fuelRate;
         Brand = brand;
         UserId = userId;
+        Index = index;
         CreatedAt = createdAt;
         FuelUpDate = fuelUpDate;
+        Id = id;
     }
 
     [BsonId]
@@ -58,6 +63,7 @@ public class FuelUp
     public int FuelRate { get; set; }
     public string Brand { get; set; }
     public string UserId { get; set; }
+    public int Index { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime FuelUpDate { get; set; }
 }
