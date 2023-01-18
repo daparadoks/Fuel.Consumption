@@ -3,6 +3,7 @@ using Fuel.Consumption.Api.Facade.Interface;
 using Fuel.Consumption.Api.Facade.Request;
 using Fuel.Consumption.Api.Facade.Response;
 using Fuel.Consumption.Domain;
+using Fuel.Consumption.Infrastructure.Commands;
 using Fuel.Consumption.Infrastructure.Constants;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,18 +12,22 @@ namespace Fuel.Consumption.Api.Facade;
 
 public class FuelUpFacade:IFuelUpFacade
 {
-    private readonly IFuelUpService _service;
+    private readonly IFuelUpReadService _fuelUpReadService;
+    private readonly IFuelUpWriteService _fuelUpWriteService;
     private readonly IVehicleService _vehicleService;
 
-    public FuelUpFacade(IFuelUpService service, IVehicleService vehicleService)
+    public FuelUpFacade(IFuelUpReadService fuelUpReadService, 
+        IFuelUpWriteService fuelUpWriteService,
+        IVehicleService vehicleService)
     {
-        _service = service;
+        _fuelUpReadService = fuelUpReadService;
+        _fuelUpWriteService = fuelUpWriteService;
         _vehicleService = vehicleService;
     }
 
     public async Task<FuelUpDetailResponse> Get(string id, User user)
     {
-        var fuelUp = await _service.GetById(id);
+        var fuelUp = await _fuelUpReadService.GetById(id);
         if (fuelUp == null)
             throw new NotFoundException("Yakıt bilgisi");
         if(fuelUp.UserId != user.Id)
@@ -40,11 +45,11 @@ public class FuelUpFacade:IFuelUpFacade
         if (vehicle.UserId != user.Id)
             throw new VehicleNotFoundException();
         
-        var lastCompleted = await _service.FindLastCompleted(request.VehicleId);
+        var lastCompleted = await _fuelUpReadService.FindLastCompleted(request.VehicleId);
         var startOdometer = lastCompleted.Odometer;
         var fuelUpsToCalculate = new List<FuelUp> { lastCompleted };
-        var missedTask = _service.FindAfter(request.VehicleId, lastCompleted.FuelUpDate);
-        var indexTask = _service.GetLastIndex(request.VehicleId);
+        var missedTask = _fuelUpReadService.FindAfter(request.VehicleId, lastCompleted.FuelUpDate);
+        var indexTask = _fuelUpReadService.GetLastIndex(request.VehicleId);
         await Task.WhenAll(missedTask, indexTask);
         
         var missed = missedTask.Result;
@@ -57,7 +62,16 @@ public class FuelUpFacade:IFuelUpFacade
         var totalAmount = fuelUpsToCalculate.Sum(x => x.Amount);
         
         //todo: calculate
-        await _service.Add(request.ToDomain(user.Id, CalculateConsumption(startOdometer, request.Odometer, totalAmount),
+        var createCommand = request.ToCommand(user.Id,
+            CalculateConsumption(startOdometer,
+                request.Odometer,
+                totalAmount),
+            lastOdometer, 
+            index);
+        await _fuelUpWriteService.Add(request.ToDomain(user.Id,
+            CalculateConsumption(startOdometer,
+                request.Odometer,
+                totalAmount),
             lastOdometer, index));
     }
 
@@ -80,9 +94,9 @@ public class FuelUpFacade:IFuelUpFacade
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)
     {
-        var countTask = _service.Count(user.Id, request.Filter.VehicleId, request.Filter.StartDate,
+        var countTask = _fuelUpReadService.Count(user.Id, request.Filter.VehicleId, request.Filter.StartDate,
             request.Filter.EndDate);
-        var itemsTask = _service.Search(request.Skip, request.Take, user.Id, request.Filter.VehicleId,
+        var itemsTask = _fuelUpReadService.Search(request.Skip, request.Take, user.Id, request.Filter.VehicleId,
             request.Filter.StartDate, request.Filter.EndDate);
 
         await Task.WhenAll(countTask, itemsTask);
@@ -104,30 +118,30 @@ public class FuelUpFacade:IFuelUpFacade
         foreach (var bulkItem in request.Items)
         {
             var vehicle = await GetVehicle(user, bulkItem);
-            var index = await _service.GetLastIndex(vehicle.Id);
+            var index = await _fuelUpReadService.GetLastIndex(vehicle.Id);
             var fuelUp = bulkItem.ToDomain(vehicle.Id, user.Id, request.Currency, request.FuelType, request.FuelRate,
                 request.TimeZone ?? EssentialConstants.DefaultTimeZone, index + 1);
-            await _service.Add(fuelUp);
+            await _fuelUpWriteService.Add(fuelUp);
         }
     }
 
     public async Task Delete(string id, User user)
     {
-        var fuelUp = await _service.GetById(id);
+        var fuelUp = await _fuelUpReadService.GetById(id);
         if (fuelUp == null || fuelUp.UserId != user.Id)
             throw new NotFoundException("Yakıt bilgisi");
 
-        await _service.Delete(id);
+        await _fuelUpWriteService.Delete(id);
         await ReOrderFuelUps(id);
     }
 
     private async Task ReOrderFuelUps(string vehicleId)
     {
-        var fuelUps = await _service.GetByVehicleId(vehicleId);
+        var fuelUps = await _fuelUpReadService.GetByVehicleId(vehicleId);
         var index = 1;
         foreach (var fuelUp in fuelUps.OrderBy(x=>x.FuelUpDate))
         {
-            await _service.Update(new FuelUp(fuelUp.VehicleId, fuelUp.Odometer, fuelUp.Distance,
+            await _fuelUpWriteService.Update(new FuelUp(fuelUp.VehicleId, fuelUp.Odometer, fuelUp.Distance,
                 fuelUp.Amount, fuelUp.Consumption, fuelUp.Price, fuelUp.Currency, fuelUp.Complete,
                 fuelUp.CityPercentage, fuelUp.FuelType, fuelUp.FuelRate, fuelUp.Brand, fuelUp.UserId, index,
                 fuelUp.CreatedAt, fuelUp.FuelUpDate, fuelUp.Id));

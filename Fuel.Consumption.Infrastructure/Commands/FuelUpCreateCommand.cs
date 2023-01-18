@@ -1,33 +1,10 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using Fuel.Consumption.Domain;
 
-namespace Fuel.Consumption.Domain;
+namespace Fuel.Consumption.Infrastructure.Commands;
 
-public interface IFuelUpReadService
+public class FuelUpCreateCommand
 {
-    Task<FuelUp> GetById(string id);
-    Task<int> Count(string userId, string vehicleId, DateTime? startDate, DateTime? endDate);
-    Task<IList<FuelUp>> Search(int skip, int take, string userId, string vehicleId, DateTime? startDate, DateTime? endDate);
-    Task<FuelUp> FindLastCompleted(string vehicleId);
-    Task<IList<FuelUp>> FindAfter(string vehicleId, DateTime endDate);
-    Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId);
-    Task<int> GetLastIndex(string vehicleId);
-}
-
-public interface IFuelUpWriteService{
-    Task Add(FuelUp fuelUp);
-    Task Update(FuelUp fuelUp);
-    Task Delete(string id);
-}
-
-public class FuelUp
-{
-    public FuelUp()
-    {
-
-    }
-
-    public FuelUp(string vehicleId,
+    public FuelUpCreateCommand(string vehicleId,
         int odometer,
         int distance,
         double amount,
@@ -63,11 +40,8 @@ public class FuelUp
         FuelUpDate = fuelUpDate;
         Id = id;
     }
-
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    
     public string Id { get; set; }
-
     public string VehicleId { get; set; }
     public int Odometer { get; set; }
     public int Distance { get; set; }
@@ -84,4 +58,21 @@ public class FuelUp
     public int Index { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime FuelUpDate { get; set; }
+
+    public FuelUp ToEntity()=>
+}
+
+public class FuelUpCreateHandler:ICommandHandler<FuelUpCreateCommand>
+{
+    private readonly IFuelUpWriteService _fuelUpWriteService;
+
+    public FuelUpCreateHandler(IFuelUpWriteService fuelUpWriteService)
+    {
+        _fuelUpWriteService = fuelUpWriteService;
+    }
+
+    public async Task Execute(FuelUpCreateCommand command)
+    {
+        var entity = command.ToEntity();
+    }
 }

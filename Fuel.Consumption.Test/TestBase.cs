@@ -22,7 +22,7 @@ public class TestBase
 
         services.Configure<ApiConfig>(Configuration);
         
-        services.AddScoped<IFuelUpService, FuelUpService>();
+        services.AddScoped<IFuelUpReadService, FuelUpReadService>();
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<IUserService, UserService>();
         ServiceProvider = services.BuildServiceProvider();

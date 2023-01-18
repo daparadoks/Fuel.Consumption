@@ -5,15 +5,15 @@ using MongoDB.Driver;
 
 namespace Fuel.Consumption.Infrastructure.Mongo;
 
-public class FuelUpService:Repository<FuelUp>, IFuelUpService
+public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
 {
-    public FuelUpService(IOptions<ApiConfig> options): base(options.Value.ConnectionStrings.Mongo)
+    public FuelUpReadService(IOptions<ApiConfig> options): base(options.Value.ConnectionStrings.Mongo)
     {
     }
 
     public async Task<FuelUp> GetById(string id) => await _collection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task Add(FuelUp fuelUp) => await _collection.InsertOneAsync(fuelUp);
+    
 
     public async Task<int> Count(string userId, string vehicleId, DateTime? startDate, DateTime? endDate) =>
         (int)await _collection.CountDocumentsAsync(x =>
@@ -41,12 +41,12 @@ public class FuelUpService:Repository<FuelUp>, IFuelUpService
         await _collection.Find(x => x.VehicleId == vehicleId && x.FuelUpDate > endDate)
             .ToListAsync();
 
-    public async Task Delete(string id) => await _collection.DeleteOneAsync(x => x.Id == id);
+    
 
     public async Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId) =>
         await _collection.Find(x => x.VehicleId == vehicleId).ToListAsync();
 
-    public async Task Update(FuelUp fuelUp) => await _collection.ReplaceOneAsync(x => x.Id == fuelUp.Id, fuelUp);
+    
 
     public async Task<int> GetLastIndex(string vehicleId)
     {
