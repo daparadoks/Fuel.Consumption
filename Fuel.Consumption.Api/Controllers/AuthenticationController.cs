@@ -17,7 +17,7 @@ public class AuthenticationController:BaseController
     public async Task<JsonResult> Login(string username, string password) =>
         await GetJsonResult(_userFacade.Login(new LoginRequest(username, password)));
 
-    [HttpPost]
+    [HttpPost("register")]
     public async Task<JsonResult> Register(RegisterRequest request) =>
         await GetJsonResult(_userFacade.Register(request));
 }

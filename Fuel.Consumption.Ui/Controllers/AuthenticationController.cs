@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Fuel.Consumption.Ui.Application;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fuel.Consumption.Ui.Controllers;
 
@@ -9,12 +10,19 @@ public class AuthenticationController:BaseController
     {
         return View();
     }
+    
+    [Route("register")]
+    public IActionResult Register()
+    {
+        return View();
+    }
 
     [HttpPost]
     [Route("login")]
     public JsonResult SetToken(string token)
     {
         SetCookie("token", token);
+        UserContext.SetUser(token);
         return Json(new { Success = true });
     }
 
@@ -23,6 +31,7 @@ public class AuthenticationController:BaseController
     public JsonResult Logout()
     {
         DeleteCookie("token");
+        UserContext.Logout();
         return Json(new { Success = true });
     }
 }

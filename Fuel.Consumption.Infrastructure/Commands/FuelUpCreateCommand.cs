@@ -59,7 +59,10 @@ public class FuelUpCreateCommand
     public DateTime CreatedAt { get; set; }
     public DateTime FuelUpDate { get; set; }
 
-    public FuelUp ToEntity()=>
+    public FuelUp ToEntity()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class FuelUpCreateHandler:ICommandHandler<FuelUpCreateCommand>

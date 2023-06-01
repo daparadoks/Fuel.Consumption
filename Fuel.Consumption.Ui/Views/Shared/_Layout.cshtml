@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Fuel.Consumption.Ui.Application
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -21,9 +22,18 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a>
-                    </li>
+                    @if (UserContext.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a>
+                        </li>
+                    }
+                    @if (UserContext.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" onclick="Logout()">Çıkış Yap</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -35,11 +45,11 @@
     </main>
 </div>
 
-<input type="hidden" id="userToken" value="@Context.Request.Cookies["token"]"/>
+<input type="hidden" id="userToken" value="@UserContext.Token"/>
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2022 - Yakıt Takip - <a asp-area="" asp-controller="Home" asp-action="Privacy">Hakkımızda</a>
+        &copy; 2022 - Yakıt Takip - <a asp-area="" asp-controller="Home" asp-action="Index">Hakkımızda</a>
     </div>
 </footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

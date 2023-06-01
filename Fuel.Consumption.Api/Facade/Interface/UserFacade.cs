@@ -43,7 +43,10 @@ public class UserFacade:IUserFacade
 
     private async Task Validate(RegisterRequest request)
     {
-        if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+        if (string.IsNullOrEmpty(request.Username) ||
+            string.IsNullOrEmpty(request.Password) ||
+            string.IsNullOrEmpty(request.PasswordValidation) ||
+            request.Password != request.PasswordValidation)
             throw new RegisterDetailsIsRequiredException();
         
         var existsUser = await _service.GetByUsername(request.Username);

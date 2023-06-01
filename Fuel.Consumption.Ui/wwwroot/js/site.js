@@ -29,3 +29,8 @@ function ValidateToken(){
 function GetToken(){
     return $('#userToken').val();
 }
+
+function Logout(){
+    $.post('/logout');
+    location.reload();
+}

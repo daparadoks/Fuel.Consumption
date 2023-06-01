@@ -65,7 +65,11 @@ builder.Services.Register(builder.Configuration);
 builder.WebHost.UseSentry();
 builder.Services.AddCors(x => x.AddPolicy(name: "mycorssettings", corsPolicyBuilder =>
 {
-    corsPolicyBuilder.WithOrigins("https://localhost:7137").AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithExposedHeaders("authorization");
+    corsPolicyBuilder.WithOrigins("https://localhost:7137")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials()
+        .WithExposedHeaders("authorization");
 }));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -93,12 +97,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors(x =>
-{
-    x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-});
+app.UseCors("mycorssettings");
 
 app.UseAuthorization();
+app.UseAuthentication();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseSentryTracing();
 app.MapControllers();

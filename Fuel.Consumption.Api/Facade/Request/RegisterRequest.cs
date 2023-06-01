@@ -7,6 +7,7 @@ public class RegisterRequest
 {
     public string Username { get; set; }
     public string Password { get; set; }
+    public string PasswordValidation { get; set; }
 
     public User ToEntity() => new(Guid.NewGuid().ToString(), Username, Crypto.HashPassword(Password));
 }
