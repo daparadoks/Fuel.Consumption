@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fuel.Consumption.Domain", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fuel.Consumption.Infrastructure", "Fuel.Consumption.Infrastructure\Fuel.Consumption.Infrastructure.csproj", "{59376A71-FD40-4C31-9FE9-7E63F0C776D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fuel.Consumption.Ui", "Fuel.Consumption.Ui\Fuel.Consumption.Ui.csproj", "{327EE07B-1118-4D63-BB8B-151414112884}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fuel.Consumption.Ui.Old", "Fuel.Consumption.Ui.Old\Fuel.Consumption.Ui.Old.csproj", "{327EE07B-1118-4D63-BB8B-151414112884}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fuel.Consumption.Test", "Fuel.Consumption.Test\Fuel.Consumption.Test.csproj", "{4D93CF39-966C-4258-A8A5-CD79BFAA3F67}"
 EndProject

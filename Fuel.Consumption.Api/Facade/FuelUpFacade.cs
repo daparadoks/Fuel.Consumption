@@ -33,13 +33,13 @@ public class FuelUpFacade:IFuelUpFacade
         if(fuelUp.UserId != user.Id)
             throw new NotFoundException("Yakıt bilgisi");
 
-        var vehicle = await _vehicleService.GetById(fuelUp.VehicleId.ToString());
+        var vehicle = await _vehicleService.GetById(fuelUp.VehicleId);
         return new FuelUpDetailResponse(fuelUp, vehicle);
     }
 
     public async Task Add(FuelUpRequest request, User user)
     {
-        var vehicle = await _vehicleService.GetById(request.VehicleId.ToString());
+        var vehicle = await _vehicleService.GetById(request.VehicleId);
         if (vehicle == null)
             throw new VehicleNotFoundException();
         if (vehicle.UserId != user.Id)
