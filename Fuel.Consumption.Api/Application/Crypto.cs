@@ -69,7 +69,8 @@ public static class Crypto
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new(ClaimTypes.Name, user.Username)
+                    new(ClaimTypes.Name, user.Username),
+                    new(CustomClaimTypes.UserRole, user.Role.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(3),
                 Issuer = issuer,

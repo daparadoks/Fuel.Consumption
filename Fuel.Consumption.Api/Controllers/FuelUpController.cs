@@ -33,10 +33,4 @@ public class FuelUpController:BaseController
     [HttpPost("search")]
     public async Task<JsonResult> Search(SearchRequest<FuelUpSearchRequest> request) =>
         await GetJsonResult(_facade.Search(request, ToUser(User)));
-    
-    [HttpPost("bulk")]
-    public async Task<JsonResult> BulkAdd([FromBody] IEnumerable<BulkAddItem> request, [FromQuery] int currency,
-        [FromQuery] int fuelType, [FromQuery] int fuelRate, [FromQuery] int? timeZone) =>
-        await GetJsonResult(_facade.BulkAdd(new BulkAddRequest(request, currency, fuelType, fuelRate, timeZone),
-            ToUser(User)));
 }

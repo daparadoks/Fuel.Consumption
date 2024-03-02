@@ -3,10 +3,6 @@ using Fuel.Consumption.Api.Facade.Interface;
 using Fuel.Consumption.Api.Facade.Request;
 using Fuel.Consumption.Api.Facade.Response;
 using Fuel.Consumption.Domain;
-using Fuel.Consumption.Infrastructure.Commands;
-using Fuel.Consumption.Infrastructure.Constants;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Fuel.Consumption.Api.Facade;
 
@@ -39,57 +35,18 @@ public class FuelUpFacade:IFuelUpFacade
 
     public async Task Add(FuelUpRequest request, User user)
     {
-        var vehicle = await _vehicleService.GetById(request.VehicleId);
-        if (vehicle == null)
-            throw new VehicleNotFoundException();
-        if (vehicle.UserId != user.Id)
-            throw new VehicleNotFoundException();
-        
-        var lastCompleted = await _fuelUpReadService.FindLastCompleted(request.VehicleId);
-        var startOdometer = lastCompleted.Odometer;
-        var fuelUpsToCalculate = new List<FuelUp> { lastCompleted };
-        var missedTask = _fuelUpReadService.FindAfter(request.VehicleId, lastCompleted.FuelUpDate);
-        var indexTask = _fuelUpReadService.GetLastIndex(request.VehicleId);
-        await Task.WhenAll(missedTask, indexTask);
-        
-        var missed = missedTask.Result;
-        var index = indexTask.Result + 1;
-        fuelUpsToCalculate.AddRange(missed);
-        var lastOdometer = fuelUpsToCalculate.Max(x => x.Odometer);
-        if (lastOdometer >= request.Odometer)
-            throw new OdometerInvalidException(startOdometer, lastOdometer);
-        
-        var totalAmount = fuelUpsToCalculate.Sum(x => x.Amount);
-        
-        //todo: calculate
-        var createCommand = request.ToCommand(user.Id,
-            CalculateConsumption(startOdometer,
-                request.Odometer,
-                totalAmount),
-            lastOdometer, 
-            index);
-        await _fuelUpWriteService.Add(request.ToDomain(user.Id,
-            CalculateConsumption(startOdometer,
-                request.Odometer,
-                totalAmount),
-            lastOdometer, index));
-    }
-
-    private double CalculateConsumption(int startOdometer, int endOdometer, double totalAmount)
-    {
-        if (totalAmount <= 0 || startOdometer <= 0)
-            return 0;
-
-        var totalDistance = endOdometer - startOdometer;
-        if (totalDistance <= 0)
-            return 0;
-        
-        return totalAmount / (totalDistance / 100);
+        await ValidateFuelUp(request, user);
+        await _fuelUpWriteService.Add(request.ToDomain(Guid.NewGuid(), user.Id, null));
     }
 
     public async Task Update(string id, FuelUpRequest request, User user)
     {
-        throw new NotImplementedException();
+        await ValidateFuelUp(request, user);
+        var existsFuelUp = await _fuelUpReadService.GetById(id);
+        if (existsFuelUp == null)
+            throw new NotFoundException(id);
+
+        await _fuelUpWriteService.Update(request.ToDomain(Guid.Parse(id), user.Id, existsFuelUp.CreatedAt));
     }
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)
@@ -113,18 +70,6 @@ public class FuelUpFacade:IFuelUpFacade
             request.ToTake());
     }
 
-    public async Task BulkAdd(BulkAddRequest request, User user)
-    {
-        foreach (var bulkItem in request.Items)
-        {
-            var vehicle = await GetVehicle(user, bulkItem);
-            var index = await _fuelUpReadService.GetLastIndex(vehicle.Id);
-            var fuelUp = bulkItem.ToDomain(vehicle.Id, user.Id, request.Currency, request.FuelType, request.FuelRate,
-                request.TimeZone ?? EssentialConstants.DefaultTimeZone, index + 1);
-            await _fuelUpWriteService.Add(fuelUp);
-        }
-    }
-
     public async Task Delete(string id, User user)
     {
         var fuelUp = await _fuelUpReadService.GetById(id);
@@ -132,35 +77,21 @@ public class FuelUpFacade:IFuelUpFacade
             throw new NotFoundException("Yakıt bilgisi");
 
         await _fuelUpWriteService.Delete(id);
-        await ReOrderFuelUps(id);
     }
 
-    private async Task ReOrderFuelUps(string vehicleId)
+    private async Task ValidateFuelUp(FuelUpRequest request, User user)
     {
-        var fuelUps = await _fuelUpReadService.GetByVehicleId(vehicleId);
-        var index = 1;
-        foreach (var fuelUp in fuelUps.OrderBy(x=>x.FuelUpDate))
-        {
-            await _fuelUpWriteService.Update(new FuelUp(fuelUp.VehicleId, fuelUp.Odometer, fuelUp.Distance,
-                fuelUp.Amount, fuelUp.Consumption, fuelUp.Price, fuelUp.Currency, fuelUp.Complete,
-                fuelUp.CityPercentage, fuelUp.FuelType, fuelUp.FuelRate, fuelUp.Brand, fuelUp.UserId, index,
-                fuelUp.CreatedAt, fuelUp.FuelUpDate, fuelUp.Id));
-            index++;
-        }
-    }
-
-    private async Task<Vehicle> GetVehicle(User user, BulkAddItem bulkItem)
-    {
-        var vehicle = await _vehicleService.GetByName(bulkItem.VehicleName, user.Id);
+        var vehicle = await _vehicleService.GetById(request.VehicleId);
         if (vehicle == null)
-            vehicle = await NewVehicle(bulkItem.VehicleName, user.Id);
-        
-        return vehicle;
-    }
+            throw new VehicleNotFoundException();
+        if (vehicle.UserId != user.Id)
+            throw new VehicleNotFoundException();
 
-    private async Task<Vehicle> NewVehicle(string vehicleName, string userId)
-    {
-        await _vehicleService.Add(new Vehicle(vehicleName, userId));
-        return await _vehicleService.GetByName(vehicleName, userId);
+        var lastFuelUp = await _fuelUpReadService.GetLastByVehicle(vehicle.Id);
+        if (lastFuelUp != null && lastFuelUp.Odometer >= request.Odometer)
+            throw new OdometerInvalidException(request.Odometer, lastFuelUp.Odometer);
+
+        if (lastFuelUp != null && lastFuelUp.FuelUpDate >= request.FuelUpDate)
+            throw new FuelUpDateIsInvalidException(request.FuelUpDate, lastFuelUp.FuelUpDate);
     }
 }

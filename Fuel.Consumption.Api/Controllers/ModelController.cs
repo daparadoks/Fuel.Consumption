@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fuel.Consumption.Api.Controllers;
 
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class BrandController : BaseController
+public class ModelController : BaseController
 {
-    private readonly IBrandFacade _facade;
+    private readonly IModelFacade _facade;
 
-    public BrandController(IBrandFacade facade)
+    public ModelController(IModelFacade facade)
     {
         _facade = facade;
     }
 
-    
-    [HttpGet]
-    public async Task<JsonResult> GetAll() => await GetJsonResult(_facade.GetSelectable());
+    [HttpGet("{modelGroupId}")]
+    public async Task<JsonResult> GetModelByModelGroupId(Guid modelGroupId) =>
+        await GetJsonResult(_facade.GetByModelGroupId(modelGroupId));
 }

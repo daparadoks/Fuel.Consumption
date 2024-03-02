@@ -9,10 +9,13 @@ namespace Fuel.Consumption.Api.Facade;
 public class VehicleFacade:IVehicleFacade
 {
     private readonly IVehicleService _service;
+    private readonly IModelService _modelService;
 
-    public VehicleFacade(IVehicleService service)
+    public VehicleFacade(IVehicleService service, 
+        IModelService modelService)
     {
         _service = service;
+        _modelService = modelService;
     }
 
     public async Task Add(VehicleRequest request, User user)
@@ -21,7 +24,12 @@ public class VehicleFacade:IVehicleFacade
         if (exists != null)
             throw new ContentExistsException("Araç");
 
-        await _service.Add(request.ToDomain(user.Id));
+        var model = await _modelService.GetByModelId(request.ModelId);
+        if (model == null)
+            throw new NotFoundException("araç modeli");
+
+        var vehicle = new Vehicle(request.Name, user.Id, model, request.ImagePath);
+        await _service.Add(vehicle);
     }
 
     public async Task<IEnumerable<VehicleListItem>> GetAll(User user)

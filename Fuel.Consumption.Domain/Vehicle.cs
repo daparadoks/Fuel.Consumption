@@ -14,18 +14,24 @@ public interface IVehicleService
 
 public class Vehicle
 {
-    public Vehicle(string name, string userId)
+    public Vehicle(string name, string userId, Model model, string imagePath)
     {
         Name = name;
         UserId = userId;
+        ModelId = model.Id;
+        Model = model;
+        ImagePath = imagePath;
     }
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
     public string Name { get; set; }
     public string UserId { get; set; }
-    public string Brand { get; set; }
-    public string ModelGroup { get; set; }
-    public string Model { get; set; }
-    public int FuelTypeId { get; set; }
+    public string ModelId { get; set; }
+    public string ImagePath { get; set; }
+    public Model Model { get; set; }
+
+    public string ToBrandName() => Model.ModelGroup.Brand.Name;
+    public string ToModelGroupName() => Model.ModelGroup.Name;
+    public string ToModelName() => Model.Name;
 }

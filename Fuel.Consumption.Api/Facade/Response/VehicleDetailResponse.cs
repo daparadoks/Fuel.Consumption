@@ -8,9 +8,9 @@ public class VehicleDetailResponse
     {
         Id = vehicle.Id;
         Name = vehicle.Name;
-        Brand = vehicle.Brand;
-        ModelGroup = vehicle.ModelGroup;
-        Model = vehicle.Model;
+        Brand = vehicle.ToBrandName();
+        ModelGroup = vehicle.ToModelGroupName();
+        Model = vehicle.ToModelName();
     }
 
     public string Id { get; }

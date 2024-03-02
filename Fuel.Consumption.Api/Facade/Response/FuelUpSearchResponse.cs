@@ -9,7 +9,6 @@ public class FuelUpSearchResponse
         VehicleName = vehicleName;
         Odometer = fuelUp.Odometer;
         Amount = fuelUp.Amount;
-        Consumption = fuelUp.Consumption;
         Price = fuelUp.Price;
         FormattedPrice = $"{fuelUp.Price.ToString()} {((CurrencyEnum)fuelUp.Currency).ToString()}";
         Date = fuelUp.FuelUpDate.ToString("dd.MM.yyyy HH:mm");

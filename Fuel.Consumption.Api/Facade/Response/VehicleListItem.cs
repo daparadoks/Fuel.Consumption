@@ -8,7 +8,8 @@ public class VehicleListItem
     {
         Id = vehicle.Id;
         Name = vehicle.Name;
-        Model = $"{vehicle.Brand} {vehicle.ModelGroup} {ToModel(vehicle.ModelGroup, vehicle.Model)}";
+        Model =
+            $"{vehicle.ToBrandName()} {vehicle.ToModelGroupName()} {ToModel(vehicle.ToModelGroupName(), vehicle.ToModelName())}";
     }
 
     public string Id { get; }

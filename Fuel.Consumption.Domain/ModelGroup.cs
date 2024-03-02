@@ -5,7 +5,7 @@ namespace Fuel.Consumption.Domain;
 
 public interface IModelGroupService
 {
-    
+    Task<IList<ModelGroup>> GetByBrandId(Guid brandId);
 }
 
 public class ModelGroup
@@ -15,4 +15,6 @@ public class ModelGroup
     public string Id { get; set; }
     public string Name { get; set; }
     public string BrandId { get; set; }
+    public bool IsActive { get; set; }
+    public Brand Brand { get; set; }
 }

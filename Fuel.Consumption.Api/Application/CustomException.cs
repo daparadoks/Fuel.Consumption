@@ -77,3 +77,13 @@ public class RegisterDetailsIsRequiredException : CustomException
 
     }
 }
+
+
+public class FuelUpDateIsInvalidException : CustomException
+{
+    public FuelUpDateIsInvalidException(DateTime fuelUpDate, DateTime previousFuelUpDate) : base(400,
+        $"Girmiş olduğunuz yakıt alım tarihi {fuelUpDate.ToString("dd.MM.yyyy HH:mm")} son girilen tarih olan {previousFuelUpDate.ToString("dd.MM.yyyy HH:mm")}'dan büyük olmalıdır.")
+    {
+
+    }
+}

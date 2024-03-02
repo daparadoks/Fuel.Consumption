@@ -1,5 +1,8 @@
 using System.Security.Claims;
+using Fuel.Consumption.Api.Application;
 using Fuel.Consumption.Domain;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fuel.Consumption.Api.Controllers;

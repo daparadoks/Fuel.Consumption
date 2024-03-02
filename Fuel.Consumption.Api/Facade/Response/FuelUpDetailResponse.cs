@@ -14,8 +14,6 @@ public class FuelUpDetailResponse
         Complete = fuelUp.Complete;
         CityPercentage = fuelUp.CityPercentage;
         FuelType = fuelUp.FuelType;
-        FuelRate = fuelUp.FuelRate;
-        Brand = fuelUp.Brand;
         CreatedAt = fuelUp.CreatedAt;
         FuelUpDate = fuelUp.FuelUpDate;
     }
@@ -28,8 +26,6 @@ public class FuelUpDetailResponse
     public bool Complete { get; }
     public int CityPercentage { get; }
     public int FuelType { get; }
-    public int FuelRate { get; }
-    public string Brand { get; }
     public DateTime CreatedAt { get; }
     public DateTime FuelUpDate { get; }
 }

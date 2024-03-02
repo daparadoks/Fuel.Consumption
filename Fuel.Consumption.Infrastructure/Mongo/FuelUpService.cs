@@ -46,13 +46,9 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
     public async Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId) =>
         await _collection.Find(x => x.VehicleId == vehicleId).ToListAsync();
 
-    
-
-    public async Task<int> GetLastIndex(string vehicleId)
-    {
-        var vehicle = await _collection.Find(x => x.VehicleId == vehicleId).SortByDescending(x => x.Index)
+    public async Task<FuelUp> GetLastByVehicle(string vehicleId) =>
+        await _collection.Find(x => x.VehicleId == vehicleId)
+            .SortByDescending(x => x.FuelUpDate)
             .FirstOrDefaultAsync();
 
-        return vehicle?.Index ?? 0;
-    }
 }
