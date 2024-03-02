@@ -15,10 +15,16 @@ public static class ServiceRegistrationExtension
         services.AddScoped<IFuelUpFacade, FuelUpFacade>();
         services.AddScoped<IVehicleFacade, VehicleFacade>();
         services.AddScoped<IUserFacade, UserFacade>();
+        services.AddScoped<IBrandFacade, BrandFacade>();
+        services.AddScoped<IModelGroupFacade, ModelGroupFacade>();
+        services.AddScoped<IModelFacade, ModelFacade>();
         
         services.AddScoped<IFuelUpReadService, FuelUpReadService>();
         services.AddScoped<IFuelUpWriteService, FuelUpWriteService>();
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IBrandService, BrandService>();
+        services.AddScoped<IModelGroupService, ModelGroupService>();
+        services.AddScoped<IModelService, ModelService>();
     }
 }
