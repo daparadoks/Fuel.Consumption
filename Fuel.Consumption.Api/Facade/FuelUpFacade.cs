@@ -96,7 +96,7 @@ public class FuelUpFacade:IFuelUpFacade
     {
         var countTask = _fuelUpReadService.Count(user.Id, request.Filter.VehicleId, request.Filter.StartDate,
             request.Filter.EndDate);
-        var itemsTask = _fuelUpReadService.Search(request.Skip, request.Take, user.Id, request.Filter.VehicleId,
+        var itemsTask = _fuelUpReadService.Search(request.ToSkip(), request.ToTake(), user.Id, request.Filter.VehicleId,
             request.Filter.StartDate, request.Filter.EndDate);
 
         await Task.WhenAll(countTask, itemsTask);
@@ -110,7 +110,7 @@ public class FuelUpFacade:IFuelUpFacade
             items.Select(x =>
                 new FuelUpSearchResponse(x,
                     vehicles.FirstOrDefault(v => v.Id == x.VehicleId.ToString())?.Name ?? string.Empty)), total,
-            request.Take);
+            request.ToTake());
     }
 
     public async Task BulkAdd(BulkAddRequest request, User user)

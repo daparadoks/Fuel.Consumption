@@ -79,12 +79,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "https://localhost:7235",
-        ValidAudience = "https://localhost:7235",
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new
             SymmetricSecurityKey
             (Encoding.UTF8.GetBytes
-                ("&QJHm^4@R1aA31#hAa1D"))
+                (builder.Configuration["Jwt:Secret"]))
     };
 });
 var app = builder.Build();

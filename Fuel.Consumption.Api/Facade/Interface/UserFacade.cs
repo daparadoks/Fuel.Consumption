@@ -24,7 +24,7 @@ public class UserFacade:IUserFacade
         if (user == null)
             throw new UserNotFoundException();
         
-        if (!Crypto.VerifyPassword(request.Password, user.Password))
+        if (user.Password != request.Password)
             throw new UserNotFoundException();
 
         var token = Crypto.GenerateJwtToken(user, _options.Value.Jwt.Issuer, _options.Value.Jwt.Audience,

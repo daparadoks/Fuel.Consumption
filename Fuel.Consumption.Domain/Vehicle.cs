@@ -22,10 +22,10 @@ public class Vehicle
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
-
     public string Name { get; set; }
     public string UserId { get; set; }
     public string Brand { get; set; }
     public string ModelGroup { get; set; }
     public string Model { get; set; }
+    public int FuelTypeId { get; set; }
 }
