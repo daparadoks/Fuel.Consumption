@@ -2,3 +2,7 @@
 \bin
 \.idea
 \obj
+Fuel.Consumption.Api/appsettings.Development.json
+Fuel.Consumption.Api/appsettings.json
+Fuel.Consumption.Test/appsettings.Development.json
+Fuel.Consumption.Test/appsettings.json
