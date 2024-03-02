@@ -16,5 +16,6 @@ public class BrandFacade : IBrandFacade
     public async Task<IEnumerable<BrandResponse>> GetSelectable()
     {
         var brands = await _brandService.GetSelectable();
+        return brands.Select(b => new BrandResponse(b.Id.ToString(), b.Name, b.LogoUrl));
     }
 }
