@@ -1,4 +1,7 @@
-﻿namespace Fuel.Consumption.Domain;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Fuel.Consumption.Domain;
 
 public interface IUserService
 {
@@ -8,21 +11,21 @@ public interface IUserService
 
 public class User
 {
-    public User(string id, string username)
+    public User(string username)
     {
-        Id = id;
         Username = username;
         Role = (int)UserRole.User;
     }
     
-    public User(string id, string username, string password)
+    public User(string username, string password)
     {
-        Id = id;
         Username = username;
         Password = password;
         Role = (int)UserRole.User;
     }
 
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
     public string Username { get; set; }
     public string Password { get; set; }

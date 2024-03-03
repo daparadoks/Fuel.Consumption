@@ -66,7 +66,7 @@ public class FuelUpFacade:IFuelUpFacade
         return new SearchResponse<FuelUpSearchResponse>(
             items.Select(x =>
                 new FuelUpSearchResponse(x,
-                    vehicles.FirstOrDefault(v => v.Id == x.VehicleId.ToString())?.Name ?? string.Empty)), total,
+                    vehicles.FirstOrDefault(v => v.Id == x.VehicleId)?.Name ?? string.Empty)), total,
             request.ToTake());
     }
 

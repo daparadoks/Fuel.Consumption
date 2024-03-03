@@ -23,8 +23,13 @@ public static class ServiceRegistrationExtension
         services.AddScoped<IFuelUpWriteService, FuelUpWriteService>();
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IBrandService, BrandService>();
-        services.AddScoped<IModelGroupService, ModelGroupService>();
-        services.AddScoped<IModelService, ModelService>();
+        
+        services.AddScoped<IBrandReadService, BrandReadService>();
+        services.AddScoped<IModelGroupReadService, ModelGroupReadService>();
+        services.AddScoped<IModelReadService, ModelReadService>();
+        
+        services.AddScoped<IBrandWriteService, BrandWriteService>();
+        services.AddScoped<IModelGroupWriteService, ModelGroupWriteService>();
+        services.AddScoped<IModelWriteService, ModelWriteService>();
     }
 }

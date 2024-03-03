@@ -16,5 +16,5 @@ public class ModelGroupController : BaseController
     }
 
     [HttpGet("{brandId}")]
-    public async Task<JsonResult> GetByBrandId(Guid brandId) => await GetJsonResult(_facade.GetByBrandId(brandId));
+    public async Task<JsonResult> GetByBrandId(string brandId) => await GetJsonResult(_facade.GetByBrandId(brandId));
 }

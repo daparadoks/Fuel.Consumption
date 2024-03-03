@@ -9,5 +9,5 @@ public class RegisterRequest
     public string Password { get; set; }
     public string PasswordValidation { get; set; }
 
-    public User ToEntity() => new(Guid.NewGuid().ToString(), Username, Password);
+    public User ToEntity() => new(Username, Password);
 }

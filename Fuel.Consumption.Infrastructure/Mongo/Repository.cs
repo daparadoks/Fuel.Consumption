@@ -8,8 +8,11 @@ public class Repository<T>
     protected readonly IMongoCollection<T> _collection;
     public Repository(string connectionString)
     {
-        var client = new MongoClient(connectionString);
-        var database = client.GetDatabase("local");
+        var settings = MongoClientSettings.FromConnectionString(connectionString);
+        settings.ServerApi = new ServerApi(ServerApiVersion.V1);
+        
+        var client = new MongoClient(settings);
+        var database = client.GetDatabase("fuelConsumption");
 
         _collection = database.GetCollection<T>(typeof(T).Name);
     }

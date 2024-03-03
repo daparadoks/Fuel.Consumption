@@ -6,16 +6,16 @@ namespace Fuel.Consumption.Api.Facade;
 
 public class BrandFacade : IBrandFacade
 {
-    private readonly IBrandService _brandService;
+    private readonly IBrandReadService _brandReadService;
 
-    public BrandFacade(IBrandService brandService)
+    public BrandFacade(IBrandReadService brandReadService)
     {
-        _brandService = brandService;
+        _brandReadService = brandReadService;
     }
 
     public async Task<IEnumerable<BrandResponse>> GetSelectable()
     {
-        var brands = await _brandService.GetSelectable();
-        return brands.Select(b => new BrandResponse(b.Id.ToString(), b.Name, b.LogoUrl));
+        var brands = await _brandReadService.GetSelectable();
+        return brands.Select(b => new BrandResponse(b.Id, b.Name, b.LogoUrl));
     }
 }

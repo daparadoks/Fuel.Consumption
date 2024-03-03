@@ -4,5 +4,5 @@ namespace Fuel.Consumption.Api.Facade.Interface;
 
 public interface IModelFacade
 {
-    Task<IEnumerable<ModelResponse>> GetByModelGroupId(Guid modelGroupId);
+    Task<IEnumerable<ModelResponse>> GetByModelGroupId(string modelGroupId);
 }

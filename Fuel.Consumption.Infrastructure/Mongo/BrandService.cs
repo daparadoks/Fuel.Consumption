@@ -5,11 +5,17 @@ using MongoDB.Driver;
 
 namespace Fuel.Consumption.Infrastructure.Mongo;
 
-public class BrandService : Repository<Brand>, IBrandService
+public class BrandReadService : Repository<Brand>, IBrandReadService
 {
-    public BrandService(IOptions<ApiConfig> options) : base(options.Value.ConnectionStrings.Mongo)
+    public BrandReadService(IOptions<ApiConfig> options) : base(options.Value.ConnectionStrings.Mongo)
     {
     }
 
     public async Task<IList<Brand>> GetSelectable() => await _collection.Find(x => x.IsActive).ToListAsync();
+
+    public async Task<Brand> GetAnyByName(string name) =>
+        await _collection.Find(x => x.Name == name).FirstOrDefaultAsync();
+    
+    public async Task<Brand> GetByName(string name) =>
+        await _collection.Find(x => x.Name == name && x.IsActive).FirstOrDefaultAsync();
 }

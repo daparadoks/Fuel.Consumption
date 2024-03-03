@@ -6,16 +6,16 @@ namespace Fuel.Consumption.Api.Facade;
 
 public class ModelGroupFacade : IModelGroupFacade
 {
-    private readonly IModelGroupService _modelGroupService;
+    private readonly IModelGroupReadService _modelGroupReadService;
 
-    public ModelGroupFacade(IModelGroupService modelGroupService)
+    public ModelGroupFacade(IModelGroupReadService modelGroupReadService)
     {
-        _modelGroupService = modelGroupService;
+        _modelGroupReadService = modelGroupReadService;
     }
 
-    public async Task<IEnumerable<ModelGroupResponse>> GetByBrandId(Guid brandId)
+    public async Task<IEnumerable<ModelGroupResponse>> GetByBrandId(string brandId)
     {
-        var modelGroups = await _modelGroupService.GetByBrandId(brandId);
+        var modelGroups = await _modelGroupReadService.GetByBrandId(brandId);
         return modelGroups.Select(x => new ModelGroupResponse(x.Id, x.Name));
     }
 }

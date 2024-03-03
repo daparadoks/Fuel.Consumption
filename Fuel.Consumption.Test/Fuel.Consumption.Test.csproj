@@ -50,6 +50,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Fuel.Consumption.Api\Fuel.Consumption.Api.csproj" />
       <ProjectReference Include="..\Fuel.Consumption.Infrastructure\Fuel.Consumption.Infrastructure.csproj" />
     </ItemGroup>
 
