@@ -7,9 +7,9 @@ public class FuelUpCreateCommand
     public FuelUpCreateCommand(string vehicleId,
         int odometer,
         int distance,
-        double amount,
-        double consumption,
-        double price,
+        decimal amount,
+        decimal consumption,
+        decimal price,
         int currency,
         bool complete,
         int cityPercentage,
@@ -45,9 +45,9 @@ public class FuelUpCreateCommand
     public string VehicleId { get; set; }
     public int Odometer { get; set; }
     public int Distance { get; set; }
-    public double Amount { get; set; }
-    public double Consumption { get; set; }
-    public double Price { get; set; }
+    public decimal Amount { get; set; }
+    public decimal Consumption { get; set; }
+    public decimal Price { get; set; }
     public int Currency { get; set; }
     public bool Complete { get; set; }
     public int CityPercentage { get; set; }

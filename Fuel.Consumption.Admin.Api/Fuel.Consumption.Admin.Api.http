@@ -1,0 +1,6 @@
+@Fuel.Consumption.Admin.Api_HostAddress = http://localhost:5167
+
+GET {{Fuel.Consumption.Admin.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

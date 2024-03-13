@@ -20,8 +20,8 @@ public class FuelUpDetailResponse
     
     public string Vehicle { get; }
     public int Odometer { get; }
-    public double Amount { get; }
-    public double Price { get; }
+    public decimal Amount { get; }
+    public decimal Price { get; }
     public int Currency { get; }
     public bool Complete { get; }
     public int CityPercentage { get; }

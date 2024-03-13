@@ -11,14 +11,17 @@ public class FuelUpFacade:IFuelUpFacade
     private readonly IFuelUpReadService _fuelUpReadService;
     private readonly IFuelUpWriteService _fuelUpWriteService;
     private readonly IVehicleService _vehicleService;
+    private readonly IDailyStatisticWriteService _dailyStatisticWriteService;
 
     public FuelUpFacade(IFuelUpReadService fuelUpReadService, 
         IFuelUpWriteService fuelUpWriteService,
-        IVehicleService vehicleService)
+        IVehicleService vehicleService, 
+        IDailyStatisticWriteService dailyStatisticWriteService)
     {
         _fuelUpReadService = fuelUpReadService;
         _fuelUpWriteService = fuelUpWriteService;
         _vehicleService = vehicleService;
+        _dailyStatisticWriteService = dailyStatisticWriteService;
     }
 
     public async Task<FuelUpDetailResponse> Get(string id, User user)
@@ -37,6 +40,9 @@ public class FuelUpFacade:IFuelUpFacade
     {
         await ValidateFuelUp(request, user);
         await _fuelUpWriteService.Add(request.ToDomain(Guid.NewGuid(), user.Id, null));
+        
+        var allFuelUps = await _fuelUpReadService.GetByVehicleId(request.VehicleId);
+        var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList());
     }
 
     public async Task Update(string id, FuelUpRequest request, User user)

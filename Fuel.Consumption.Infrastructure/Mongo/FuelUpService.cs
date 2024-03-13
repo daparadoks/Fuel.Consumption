@@ -51,4 +51,13 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
             .SortByDescending(x => x.FuelUpDate)
             .FirstOrDefaultAsync();
 
+    public async Task<FuelUp> GetLastFullFuelUpByVehicle(string vehicleId) =>
+        await _collection.Find(x => x.VehicleId == vehicleId && x.Complete)
+            .SortByDescending(x => x.FuelUpDate)
+            .FirstOrDefaultAsync();
+
+    public async Task<IList<FuelUp>> GetByDateAndVehicleId(string vehicleId, DateTime startDate) =>
+        await _collection.Find(x => x.VehicleId == vehicleId && x.FuelUpDate > startDate)
+            .SortBy(x => x.FuelUpDate)
+            .ToListAsync();
 }

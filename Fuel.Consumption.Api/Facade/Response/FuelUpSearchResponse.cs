@@ -17,11 +17,11 @@ public class FuelUpSearchResponse
 
     public string VehicleName { get; }
     public int Odometer { get; }
-    public double Amount { get; }
+    public decimal Amount { get; }
     public string FormattedAmount => $"{Amount.ToString()} Litre";
-    public double Consumption { get; }
+    public decimal Consumption { get; }
     public string FormattedConsumption => $"{Consumption.ToString()} L/100 Km";
-    public double Price { get; }
+    public decimal Price { get; }
     public string FormattedPrice { get; }
     public string Date { get; }
 }

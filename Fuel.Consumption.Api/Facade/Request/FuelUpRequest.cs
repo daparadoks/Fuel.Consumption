@@ -1,5 +1,4 @@
 ﻿using Fuel.Consumption.Domain;
-using Fuel.Consumption.Infrastructure.Commands;
 using Fuel.Consumption.Infrastructure.Constants;
 
 namespace Fuel.Consumption.Api.Facade.Request;
@@ -8,35 +7,14 @@ public class FuelUpRequest
 {
     public string VehicleId { get; set; }
     public int Odometer { get; set; }
-    public double Amount { get; set; }
-    public double Price { get; set; }
+    public decimal Amount { get; set; }
+    public decimal Price { get; set; }
     public CurrencyEnum Currency { get; set; }
     public bool Complete { get; set; }
     public int CityPercentage { get; set; }
     public int FuelType { get; set; }
     public DateTime FuelUpDate { get; set; }
     public int? TimeZone { get; set; }
-
-    public FuelUpCreateCommand ToCommand(string userId,
-        double consumption,
-        int lastOdometer,
-        int index) => new(VehicleId,
-        Odometer,
-        ToDistance(lastOdometer),
-        Amount,
-        consumption,
-        Price,
-        (int)Currency,
-        Complete,
-        CityPercentage,
-        FuelType,
-        FuelType,
-        "",
-        userId,
-        index,
-        ToNow(),
-        FuelUpDate,
-        "");
 
     public FuelUp ToDomain(Guid id, string userId, DateTime? createdAt) => new(id.ToString(),
         VehicleId,
