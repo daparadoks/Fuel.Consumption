@@ -60,4 +60,7 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
         await _collection.Find(x => x.VehicleId == vehicleId && x.FuelUpDate > startDate)
             .SortBy(x => x.FuelUpDate)
             .ToListAsync();
+
+    public async Task<IList<FuelUp>> GetByUserId(string userId) =>
+        await _collection.Find(x => x.UserId == userId).ToListAsync();
 }

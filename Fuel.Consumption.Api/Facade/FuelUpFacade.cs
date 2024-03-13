@@ -41,8 +41,7 @@ public class FuelUpFacade:IFuelUpFacade
         await ValidateFuelUp(request, user);
         await _fuelUpWriteService.Add(request.ToDomain(Guid.NewGuid(), user.Id, null));
         
-        var allFuelUps = await _fuelUpReadService.GetByVehicleId(request.VehicleId);
-        var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList());
+        await CreateStatistics(user.Id);
     }
 
     public async Task Update(string id, FuelUpRequest request, User user)
@@ -53,6 +52,8 @@ public class FuelUpFacade:IFuelUpFacade
             throw new NotFoundException(id);
 
         await _fuelUpWriteService.Update(request.ToDomain(Guid.Parse(id), user.Id, existsFuelUp.CreatedAt));
+
+        await CreateStatistics(user.Id);
     }
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)
@@ -99,5 +100,18 @@ public class FuelUpFacade:IFuelUpFacade
 
         if (lastFuelUp != null && lastFuelUp.FuelUpDate >= request.FuelUpDate)
             throw new FuelUpDateIsInvalidException(request.FuelUpDate, lastFuelUp.FuelUpDate);
+    }
+    
+    private async Task CreateStatistics(string userId)
+    {
+        var fuelUpTask = _fuelUpReadService.GetByUserId(userId);
+        var vehicleTask = _vehicleService.GetByUserId(userId);
+        await Task.WhenAll(fuelUpTask, vehicleTask);
+
+        var allFuelUps = fuelUpTask.Result;
+        var vehicles = vehicleTask.Result;
+        var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList(), vehicles, userId);
+        await _dailyStatisticWriteService.DeleteByUserId(userId);
+        await _dailyStatisticWriteService.BulkAdd(vehicleStatistic.GetDailyStatistics());
     }
 }

@@ -12,6 +12,7 @@ public interface IFuelUpReadService
     Task<FuelUp> GetLastByVehicle(string vehicleId);
     Task<FuelUp> GetLastFullFuelUpByVehicle(string vehicleId);
     Task<IList<FuelUp>> GetByDateAndVehicleId(string vehicleId, DateTime startDate);
+    Task<IList<FuelUp>> GetByUserId(string userId);
 }
 
 public interface IFuelUpWriteService{
