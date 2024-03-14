@@ -9,22 +9,22 @@ public class FuelUpRequest
     public int Odometer { get; set; }
     public decimal Amount { get; set; }
     public decimal Price { get; set; }
+    public decimal TotalCost { get; set; }
     public CurrencyEnum Currency { get; set; }
     public bool Complete { get; set; }
     public int CityPercentage { get; set; }
-    public int FuelType { get; set; }
     public DateTime FuelUpDate { get; set; }
     public int? TimeZone { get; set; }
 
-    public FuelUp ToDomain(string userId, DateTime? createdAt) => new(VehicleId,
-        Odometer,
+    public FuelUp ToDomain(string userId, Vehicle vehicle, DateTime? createdAt) => new(Odometer,
         Amount,
         Price,
+        TotalCost,
         (int)Currency,
         Complete,
         CityPercentage,
-        FuelType,
         userId,
+        vehicle,
         createdAt ?? ToNow(),
         FuelUpDate,
         ToNow());

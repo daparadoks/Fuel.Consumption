@@ -2,13 +2,15 @@
 
 public class CustomException:Exception
 {
-    public CustomException(int code, string message)
+    public CustomException(int code, string message, bool logThis = true)
     {
         Message = message;
         Code = code;
+        LogThis = logThis;
     }
 
     public int Code { get; }
+    public bool LogThis { get; }
     public override string Message { get; }
 }
 

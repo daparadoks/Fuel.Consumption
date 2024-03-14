@@ -23,5 +23,5 @@ public class BaseController:ControllerBase
     }
 
     protected static User ToUser(ClaimsPrincipal user) =>
-        new("paradox");
+        new(user.FindFirstValue(CustomClaimTypes.UserId), user.Identity?.Name);
 }

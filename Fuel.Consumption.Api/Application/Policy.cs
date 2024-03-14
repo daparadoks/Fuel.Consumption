@@ -10,4 +10,5 @@ public static class CustomRoles
 public static class CustomClaimTypes
 {
     public const string UserRole = "UserRole";
+    public const string UserId = "UserId";
 }

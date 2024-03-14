@@ -20,10 +20,14 @@ public class FuelUpController:BaseController
     [HttpGet]
     public async Task<JsonResult> Get(string id) => await GetJsonResult(_facade.Get(id, ToUser(User)));
 
+    [HttpGet("vehicle/{vehicleId}")]
+    public async Task<JsonResult> GetByVehicle(string vehicleId, [FromQuery]SearchRequest request) =>
+        await GetJsonResult(_facade.GetByVehicle(vehicleId, request, ToUser(User)));
+
     [HttpPost]
     public async Task<JsonResult> Add(FuelUpRequest request) => await GetJsonResult(_facade.Add(request, ToUser(User)));
 
-    [HttpPut]
+    [HttpPut("{id}")]
     public async Task<JsonResult> Update(string id, FuelUpRequest request) =>
         await GetJsonResult(_facade.Update(id, request, ToUser(User)));
 

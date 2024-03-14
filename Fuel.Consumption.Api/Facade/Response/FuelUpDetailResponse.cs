@@ -13,7 +13,7 @@ public class FuelUpDetailResponse
         Currency = fuelUp.Currency;
         Complete = fuelUp.Complete;
         CityPercentage = fuelUp.CityPercentage;
-        FuelType = fuelUp.FuelType;
+        FuelType = fuelUp.Vehicle.Model.FuelType;
         CreatedAt = fuelUp.CreatedAt;
         FuelUpDate = fuelUp.FuelUpDate;
     }

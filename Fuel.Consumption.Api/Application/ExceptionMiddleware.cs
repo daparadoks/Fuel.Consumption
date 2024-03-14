@@ -30,7 +30,9 @@ public class ExceptionMiddleware
                 Code = e.Code
             };
             var json = JsonSerializer.Serialize(response);
-            _logger.LogError(e.Message, e);
+            if (e.LogThis)
+                _logger.LogError(e.Message, e);
+            
             await context.Response.WriteAsync(json);
         }
         catch (Exception e)

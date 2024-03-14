@@ -21,6 +21,11 @@ public class VehicleController:BaseController
 
     [HttpGet("{id}")]
     public async Task<JsonResult> Get(string id) => await GetJsonResult(_facade.Get(id, ToUser(User)));
+    
     [HttpPost]
     public async Task<JsonResult> Add(VehicleRequest request) => await GetJsonResult(_facade.Add(request, ToUser(User)));
+
+    [HttpPut("{id}")]
+    public async Task<JsonResult> Update(string id, VehicleRequest request) =>
+        await GetJsonResult(_facade.Update(id, request, ToUser(User)));
 }

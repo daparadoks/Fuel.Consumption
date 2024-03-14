@@ -2,10 +2,10 @@
 
 public class SearchResponse<T>
 {
-    public SearchResponse(IEnumerable<T> results, int total, int pageSize)
+    public SearchResponse(IEnumerable<T> results, long total, int pageSize)
     {
         Results = results;
-        Total = total;
+        Total = (int)total;
         PageSize = pageSize;
     }
     public IEnumerable<T> Results { get; }

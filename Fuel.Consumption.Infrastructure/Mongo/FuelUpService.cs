@@ -41,10 +41,15 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
         await _collection.Find(x => x.VehicleId == vehicleId && x.FuelUpDate > endDate)
             .ToListAsync();
 
-    
 
-    public async Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId) =>
-        await _collection.Find(x => x.VehicleId == vehicleId).ToListAsync();
+
+    public async Task<IEnumerable<FuelUp>> SearchByVehicleId(string vehicleId, int skip, int take) =>
+        await _collection
+            .Find(x => x.VehicleId == vehicleId)
+            .SortBy(x => x.FuelUpDate)
+            .Skip(skip)
+            .Limit(take)
+            .ToListAsync();
 
     public async Task<FuelUp> GetLastByVehicle(string vehicleId) =>
         await _collection.Find(x => x.VehicleId == vehicleId)
@@ -72,5 +77,15 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
     public async Task<FuelUp> GetNextCompletedByVehicle(string vehicleId, DateTime startDate) =>
         await _collection
             .Find(x => x.VehicleId == vehicleId && x.Complete && x.FuelUpDate > startDate)
+            .FirstOrDefaultAsync();
+
+    public async Task<long> CountByVehicle(string vehicleId) =>
+        await _collection.CountDocumentsAsync(x => x.VehicleId == vehicleId);
+
+    public async Task<FuelUp> GetPrevious(string vehicleId, DateTime endDate) =>
+        await _collection.Find(x => x.VehicleId == vehicleId && x.FuelUpDate < endDate).FirstOrDefaultAsync();
+
+    public async Task<FuelUp> GetPreviousCompletedByVehicle(string vehicleId, DateTime endDate) =>
+        await _collection.Find(x => x.VehicleId == vehicleId && x.Complete && x.FuelUpDate < endDate)
             .FirstOrDefaultAsync();
 }

@@ -12,16 +12,19 @@ public class FuelUpFacade:IFuelUpFacade
     private readonly IFuelUpWriteService _fuelUpWriteService;
     private readonly IVehicleService _vehicleService;
     private readonly IDailyStatisticWriteService _dailyStatisticWriteService;
+    private readonly ILogger<FuelUpFacade> _logger;
 
     public FuelUpFacade(IFuelUpReadService fuelUpReadService, 
         IFuelUpWriteService fuelUpWriteService,
         IVehicleService vehicleService, 
-        IDailyStatisticWriteService dailyStatisticWriteService)
+        IDailyStatisticWriteService dailyStatisticWriteService, 
+        ILogger<FuelUpFacade> logger)
     {
         _fuelUpReadService = fuelUpReadService;
         _fuelUpWriteService = fuelUpWriteService;
         _vehicleService = vehicleService;
         _dailyStatisticWriteService = dailyStatisticWriteService;
+        _logger = logger;
     }
 
     public async Task<FuelUpDetailResponse> Get(string id, User user)
@@ -38,34 +41,63 @@ public class FuelUpFacade:IFuelUpFacade
 
     public async Task Add(FuelUpRequest request, User user)
     {
-        await ValidateFuelUp(request, user);
-
-        var newFuelUp = await _fuelUpWriteService.Add(request.ToDomain(user.Id, null));
-        await ReCalculateConsumptionOfCompletedFuelUp(newFuelUp);
+        await ValidateFuelUp(request, user, false);
         
-        await CreateStatistics(user.Id);
+        var vehicle = await _vehicleService.GetById(request.VehicleId);
+        if (vehicle == null)
+            throw new NotFoundException(request.VehicleId);
+
+        var newFuelUp = await _fuelUpWriteService.Add(request.ToDomain(user.Id, vehicle, null));
+        try
+        {
+            await ReCalculateConsumptionOfCompletedFuelUp(newFuelUp);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"ReCalculateConsumptionOfCompletedFuelUp Error for vehicleId: {request.VehicleId}");
+            
+            await _fuelUpWriteService.Delete(newFuelUp.Id);
+            throw new CustomException(500, "Yakıt verisi girişinde beklenmedik bir hata oluştu.", false);
+        }
+
+        //await CreateStatistics(user.Id);
     }
 
     public async Task Update(string id, FuelUpRequest request, User user)
     {
-        await ValidateFuelUp(request, user);
+        await ValidateFuelUp(request, user, true);
+        
         var existsFuelUp = await _fuelUpReadService.GetById(id);
         if (existsFuelUp == null)
             throw new NotFoundException(id);
+        
+        var vehicle = await _vehicleService.GetById(request.VehicleId);
+        if (vehicle == null)
+            throw new NotFoundException(request.VehicleId);
 
-        var fuelUpToUpdate = request.ToDomain(user.Id, existsFuelUp.CreatedAt);
+        var fuelUpToUpdate = request.ToDomain(user.Id, vehicle, existsFuelUp.CreatedAt);
         await _fuelUpWriteService.Update(fuelUpToUpdate);
         if (existsFuelUp.Complete != request.Complete)
         {
-            if (request.Complete)
-                await ReCalculateConsumptionOfCompletedFuelUp(fuelUpToUpdate);
+            try
+            {
+                if (request.Complete)
+                    await ReCalculateConsumptionOfCompletedFuelUp(fuelUpToUpdate);
 
-            var nextCompletedFuelUp =
-                await _fuelUpReadService.GetNextCompletedByVehicle(request.VehicleId, fuelUpToUpdate.FuelUpDate);
-            await ReCalculateConsumptionOfCompletedFuelUp(nextCompletedFuelUp, fuelUpToUpdate);
+                var nextCompletedFuelUp =
+                    await _fuelUpReadService.GetNextCompletedByVehicle(request.VehicleId, fuelUpToUpdate.FuelUpDate);
+                if (nextCompletedFuelUp != null)
+                    await ReCalculateConsumptionOfCompletedFuelUp(nextCompletedFuelUp, fuelUpToUpdate);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Fuel up update error for fuel up id: {id}");
+                await _fuelUpWriteService.Update(existsFuelUp);
+                throw new CustomException(400, $"Yakut bilgisi güncellenirken beklenmedik bir hata oluştu.", false);
+            }
         }
 
-        await CreateStatistics(user.Id);
+        //await CreateStatistics(user.Id);
     }
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)
@@ -96,17 +128,50 @@ public class FuelUpFacade:IFuelUpFacade
             throw new NotFoundException("Yakıt bilgisi");
 
         await _fuelUpWriteService.Delete(id);
+
+        try
+        {
+            var nextCompletedFuelUp =
+                await _fuelUpReadService.GetNextCompletedByVehicle(fuelUp.VehicleId, fuelUp.FuelUpDate);
+            var previousCompletedFuelUp = fuelUp.Complete
+                ? fuelUp
+                : await _fuelUpReadService.GetPreviousCompletedByVehicle(fuelUp.VehicleId, fuelUp.FuelUpDate);
+            if (nextCompletedFuelUp != null)
+                await ReCalculateConsumptionOfCompletedFuelUp(nextCompletedFuelUp, previousCompletedFuelUp);
+        }
+        catch (Exception e)
+        {
+            var reAdded = await _fuelUpWriteService.Add(fuelUp);
+            _logger.LogError(e, $"Fuel up delete error id: {reAdded.Id}");
+
+            throw new CustomException(400, $"Yakıt bilgisi silinemedi.", false);
+        }
     }
 
-    private async Task ValidateFuelUp(FuelUpRequest request, User user)
+    public async Task<SearchResponse<FuelUpListResponse>> GetByVehicle(string vehicleId, SearchRequest request,
+        User user)
     {
-        var vehicle = await _vehicleService.GetById(request.VehicleId);
-        if (vehicle == null)
-            throw new VehicleNotFoundException();
-        if (vehicle.UserId != user.Id)
-            throw new VehicleNotFoundException();
+        var vehicle = await _vehicleService.GetById(vehicleId);
+        if (vehicle == null || vehicle.UserId != user.Id)
+            throw new NotFoundException(vehicleId);
 
-        var lastFuelUp = await _fuelUpReadService.GetLastByVehicle(vehicle.Id);
+        var searchTask = _fuelUpReadService.SearchByVehicleId(vehicleId, request.ToSkip(), request.ToTake());
+        var countTask = _fuelUpReadService.CountByVehicle(vehicleId);
+        await Task.WhenAll(searchTask, countTask);
+        
+        return new SearchResponse<FuelUpListResponse>(searchTask.Result.Select(x => new FuelUpListResponse(x.Id,
+            x.FuelUpDate,
+            0,
+            x.Consumption,
+            x.Price,
+            x.CityPercentage)), countTask.Result, request.ToTake());
+    }
+
+    private async Task ValidateFuelUp(FuelUpRequest request, User user, bool update)
+    {
+        var lastFuelUp = update
+            ? await _fuelUpReadService.GetPrevious(request.VehicleId, request.FuelUpDate)
+            : await _fuelUpReadService.GetLastByVehicle(request.VehicleId);
         if (lastFuelUp != null && lastFuelUp.Odometer >= request.Odometer)
             throw new OdometerInvalidException(request.Odometer, lastFuelUp.Odometer);
 
@@ -116,15 +181,22 @@ public class FuelUpFacade:IFuelUpFacade
     
     private async Task CreateStatistics(string userId)
     {
-        var fuelUpTask = _fuelUpReadService.GetByUserId(userId);
-        var vehicleTask = _vehicleService.GetByUserId(userId);
-        await Task.WhenAll(fuelUpTask, vehicleTask);
+        try
+        {
+            var fuelUpTask = _fuelUpReadService.GetByUserId(userId);
+            var vehicleTask = _vehicleService.GetByUserId(userId);
+            await Task.WhenAll(fuelUpTask, vehicleTask);
 
-        var allFuelUps = fuelUpTask.Result;
-        var vehicles = vehicleTask.Result;
-        var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList(), vehicles, userId);
-        await _dailyStatisticWriteService.DeleteByUserId(userId);
-        await _dailyStatisticWriteService.BulkAdd(vehicleStatistic.GetDailyStatistics());
+            var allFuelUps = fuelUpTask.Result;
+            var vehicles = vehicleTask.Result;
+            var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList(), vehicles, userId);
+            await _dailyStatisticWriteService.DeleteByUserId(userId);
+            await _dailyStatisticWriteService.BulkAdd(vehicleStatistic.GetDailyStatistics());
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, $"CreateStatistics error for user id: {userId}");
+        }
     }
     
     private async Task ReCalculateConsumptionOfCompletedFuelUp(FuelUp fuelUp, FuelUp? previousCompletedFuelUp = null)
@@ -134,9 +206,13 @@ public class FuelUpFacade:IFuelUpFacade
 
         previousCompletedFuelUp ??=
             await _fuelUpReadService.GetLastCompletedByVehicle(fuelUp.VehicleId, fuelUp.FuelUpDate);
+
+        if (previousCompletedFuelUp == null)
+            return;
+        
         var nonCompletedFuelUps = await _fuelUpReadService.GetByDateRangeAndVehicle(fuelUp.VehicleId,
-            previousCompletedFuelUp.FuelUpDate,
-            fuelUp.FuelUpDate);
+                previousCompletedFuelUp.FuelUpDate,
+                fuelUp.FuelUpDate);
         var previousFuelUps = new List<FuelUp> { previousCompletedFuelUp };
         previousFuelUps.AddRange(nonCompletedFuelUps);
         fuelUp.CalculateConsumption(previousFuelUps);

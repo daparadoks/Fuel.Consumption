@@ -11,4 +11,5 @@ public interface IFuelUpFacade
     Task Update(string id, FuelUpRequest request, User user);
     Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user);
     Task Delete(string id, User user);
+    Task<SearchResponse<FuelUpListResponse>> GetByVehicle(string vehicleId, SearchRequest request, User user);
 }

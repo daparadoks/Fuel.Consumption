@@ -31,5 +31,7 @@ public static class ServiceRegistrationExtension
         services.AddScoped<IBrandWriteService, BrandWriteService>();
         services.AddScoped<IModelGroupWriteService, ModelGroupWriteService>();
         services.AddScoped<IModelWriteService, ModelWriteService>();
+        services.AddScoped<IDailyStatisticWriteService, DailyStatisticWriteService>();
+        services.AddScoped<IDailyStatisticReadService, DailyStatisticReadService>();
     }
 }

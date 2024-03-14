@@ -9,18 +9,21 @@ public interface IFuelUpReadService
     Task<FuelUp> GetById(string id);
     Task<int> Count(string userId, string vehicleId, DateTime? startDate, DateTime? endDate);
     Task<IList<FuelUp>> Search(int skip, int take, string userId, string vehicleId, DateTime? startDate, DateTime? endDate);
-    Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId);
+    Task<IEnumerable<FuelUp>> SearchByVehicleId(string vehicleId, int skip, int take);
     Task<FuelUp> GetLastByVehicle(string vehicleId);
     Task<FuelUp> GetLastCompletedByVehicle(string vehicleId, DateTime endDate);
     Task<IList<FuelUp>> GetByStarDateAndVehicle(string vehicleId, DateTime startDate);
     Task<IList<FuelUp>> GetByUserId(string userId);
     Task<IList<FuelUp>> GetByDateRangeAndVehicle(string vehicleId, DateTime startDate, DateTime endDate);
     Task<FuelUp> GetNextCompletedByVehicle(string vehicleId, DateTime startDate);
+    Task<long> CountByVehicle(string vehicleId);
+    Task<FuelUp> GetPrevious(string vehicleId, DateTime endDate);
+    Task<FuelUp> GetPreviousCompletedByVehicle(string vehicleId, DateTime endDate);
 }
 
 public interface IFuelUpWriteService{
-    Task<FuelUp> Add(FuelUp fuelUp);
-    Task Update(FuelUp fuelUp);
+    Task<FuelUp> Add(FuelUp entity);
+    Task Update(FuelUp entity);
     Task Delete(string id);
 }
 
@@ -31,32 +34,33 @@ public class FuelUp
 
     }
 
-    public FuelUp(string vehicleId,
-        int odometer,
+    public FuelUp(int odometer,
         decimal amount,
         decimal price,
+        decimal totalCost,
         int currency,
         bool complete,
         int cityPercentage,
-        int fuelType,
         string userId,
+        Vehicle vehicle,
         DateTime createdAt,
         DateTime fuelUpDate,
         DateTime updatedAt)
     {
-        VehicleId = vehicleId;
         Odometer = odometer;
         Amount = amount;
         Price = price;
+        TotalCost = totalCost;
         Currency = currency;
         Complete = complete;
         CityPercentage = cityPercentage;
-        FuelType = fuelType;
         UserId = userId;
         CreatedAt = createdAt;
         FuelUpDate = fuelUpDate;
         UpdatedAt = updatedAt;
         Consumption = null;
+        Vehicle = vehicle;
+        VehicleId = vehicle.Id;
     }
 
     [BsonId]
@@ -67,15 +71,17 @@ public class FuelUp
     public int Odometer { get; set; }
     public decimal Amount { get; set; }
     public decimal Price { get; set; }
+    public decimal TotalCost { get; set; }
     public int Currency { get; set; }
     public bool Complete { get; set; }
     public int CityPercentage { get; set; }
-    public int FuelType { get; set; }
     public string UserId { get; set; }
     public decimal? Consumption { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime FuelUpDate { get; set; }
     public DateTime UpdatedAt { get; set; }
+
+    public Vehicle Vehicle { get; set; }
 
     public void CalculateConsumption(List<FuelUp> previousFuelUps)
     {

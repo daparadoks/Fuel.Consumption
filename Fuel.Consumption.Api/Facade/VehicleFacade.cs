@@ -28,7 +28,7 @@ public class VehicleFacade:IVehicleFacade
         if (model == null)
             throw new NotFoundException("araç modeli");
 
-        var vehicle = new Vehicle(request.Name, user.Id, model, request.ImagePath);
+        var vehicle = request.ToDomain(user.Id, model);
         await _service.Add(vehicle);
     }
 
@@ -45,5 +45,18 @@ public class VehicleFacade:IVehicleFacade
             throw new VehicleNotFoundException();
 
         return new VehicleDetailResponse(vehicle);
+    }
+
+    public async Task Update(string vehicleId, VehicleRequest request, User user)
+    {
+        var vehicle = await _service.GetById(vehicleId);
+        if (vehicle == null || vehicle.UserId != user.Id)
+            throw new VehicleNotFoundException();
+
+        var model = await _modelReadService.GetByModelId(request.ModelId);
+        if (model == null)
+            throw new NotFoundException("araç modeli");
+        
+        await _service.Update(request.ToDomain(user.Id, model, vehicleId));
     }
 }

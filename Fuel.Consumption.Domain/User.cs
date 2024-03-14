@@ -11,14 +11,16 @@ public interface IUserService
 
 public class User
 {
-    public User(string username)
+    public User(string id, string username)
     {
+        Id = id;
         Username = username;
         Role = (int)UserRole.User;
     }
     
-    public User(string username, string password)
+    public User(string id, string username, string password)
     {
+        Id = id;
         Username = username;
         Password = password;
         Role = (int)UserRole.User;

@@ -25,4 +25,6 @@ public class VehicleService:Repository<Vehicle>, IVehicleService
 
     public async Task<IEnumerable<Vehicle>> GetAll() =>
         await _collection.Find(x => true).ToListAsync();
+
+    public async Task Update(Vehicle entity) => await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
 }

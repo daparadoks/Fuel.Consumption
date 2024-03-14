@@ -11,11 +11,11 @@ public class FuelUpWriteService : Repository<FuelUp>, IFuelUpWriteService
     {
     }
 
-    public async Task<FuelUp> Add(FuelUp fuelUp)
+    public async Task<FuelUp> Add(FuelUp entity)
     {
-        await _collection.InsertOneAsync(fuelUp);
-        return fuelUp;
+        await _collection.InsertOneAsync(entity);
+        return entity;
     }
-    public async Task Update(FuelUp fuelUp) => await _collection.ReplaceOneAsync(x => x.Id == fuelUp.Id, fuelUp);
+    public async Task Update(FuelUp entity) => await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
     public async Task Delete(string id) => await _collection.DeleteOneAsync(x => x.Id == id);
 }

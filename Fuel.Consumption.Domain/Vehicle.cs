@@ -10,17 +10,22 @@ public interface IVehicleService
     Task<Vehicle> GetById(string vehicleId);
     Task<IEnumerable<Vehicle>> GetByUserId(string userId);
     Task<IEnumerable<Vehicle>> GetAll();
+    Task Update(Vehicle entity);
 }
 
 public class Vehicle
 {
-    public Vehicle(string name, string userId, Model model, string imagePath)
+    public Vehicle(string name, string userId, Model model, string imagePath, FuelType fuelType, string vehicleId)
     {
+        if (!string.IsNullOrEmpty(vehicleId))
+            Id = vehicleId;
+        
         Name = name;
         UserId = userId;
         ModelId = model.Id;
         Model = model;
         ImagePath = imagePath;
+        FuelType = fuelType;
     }
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -29,6 +34,7 @@ public class Vehicle
     public string UserId { get; set; }
     public string ModelId { get; set; }
     public string ImagePath { get; set; }
+    public FuelType FuelType { get; set; }
     public Model Model { get; set; }
 
     public string ToBrandName() => Model.ModelGroup.Brand.Name;

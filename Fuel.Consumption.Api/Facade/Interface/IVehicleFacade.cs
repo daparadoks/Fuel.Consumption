@@ -9,4 +9,5 @@ public interface IVehicleFacade
     Task Add(VehicleRequest request, User toUser);
     Task<IEnumerable<VehicleListItem>> GetAll(User user);
     Task<VehicleDetailResponse> Get(string id, User user);
+    Task Update(string vehicleId, VehicleRequest request, User user);
 }
