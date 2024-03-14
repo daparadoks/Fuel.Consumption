@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+// ReSharper disable PossibleLossOfFraction
 
 namespace Fuel.Consumption.Domain;
 
@@ -10,13 +11,15 @@ public interface IFuelUpReadService
     Task<IList<FuelUp>> Search(int skip, int take, string userId, string vehicleId, DateTime? startDate, DateTime? endDate);
     Task<IEnumerable<FuelUp>> GetByVehicleId(string vehicleId);
     Task<FuelUp> GetLastByVehicle(string vehicleId);
-    Task<FuelUp> GetLastFullFuelUpByVehicle(string vehicleId);
-    Task<IList<FuelUp>> GetByDateAndVehicleId(string vehicleId, DateTime startDate);
+    Task<FuelUp> GetLastCompletedByVehicle(string vehicleId, DateTime endDate);
+    Task<IList<FuelUp>> GetByStarDateAndVehicle(string vehicleId, DateTime startDate);
     Task<IList<FuelUp>> GetByUserId(string userId);
+    Task<IList<FuelUp>> GetByDateRangeAndVehicle(string vehicleId, DateTime startDate, DateTime endDate);
+    Task<FuelUp> GetNextCompletedByVehicle(string vehicleId, DateTime startDate);
 }
 
 public interface IFuelUpWriteService{
-    Task Add(FuelUp fuelUp);
+    Task<FuelUp> Add(FuelUp fuelUp);
     Task Update(FuelUp fuelUp);
     Task Delete(string id);
 }
@@ -28,8 +31,7 @@ public class FuelUp
 
     }
 
-    public FuelUp(string id,
-        string vehicleId,
+    public FuelUp(string vehicleId,
         int odometer,
         decimal amount,
         decimal price,
@@ -42,7 +44,6 @@ public class FuelUp
         DateTime fuelUpDate,
         DateTime updatedAt)
     {
-        Id = id;
         VehicleId = vehicleId;
         Odometer = odometer;
         Amount = amount;
@@ -55,6 +56,7 @@ public class FuelUp
         CreatedAt = createdAt;
         FuelUpDate = fuelUpDate;
         UpdatedAt = updatedAt;
+        Consumption = null;
     }
 
     [BsonId]
@@ -70,7 +72,20 @@ public class FuelUp
     public int CityPercentage { get; set; }
     public int FuelType { get; set; }
     public string UserId { get; set; }
+    public decimal? Consumption { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime FuelUpDate { get; set; }
     public DateTime UpdatedAt { get; set; }
+
+    public void CalculateConsumption(List<FuelUp> previousFuelUps)
+    {
+        if (!previousFuelUps.Any())
+            return;
+
+        var totalDistance = Odometer - previousFuelUps.First().Odometer;
+        var previousFuelAmount = previousFuelUps.Count > 1 ? previousFuelUps.Skip(1).Sum(x => x.Amount) : 0;
+        var totalFuel = previousFuelAmount + Amount;
+
+        Consumption = totalFuel / (totalDistance / 100);
+    }
 }

@@ -39,7 +39,9 @@ public class FuelUpFacade:IFuelUpFacade
     public async Task Add(FuelUpRequest request, User user)
     {
         await ValidateFuelUp(request, user);
-        await _fuelUpWriteService.Add(request.ToDomain(Guid.NewGuid(), user.Id, null));
+
+        var newFuelUp = await _fuelUpWriteService.Add(request.ToDomain(user.Id, null));
+        await ReCalculateConsumptionOfCompletedFuelUp(newFuelUp);
         
         await CreateStatistics(user.Id);
     }
@@ -51,7 +53,17 @@ public class FuelUpFacade:IFuelUpFacade
         if (existsFuelUp == null)
             throw new NotFoundException(id);
 
-        await _fuelUpWriteService.Update(request.ToDomain(Guid.Parse(id), user.Id, existsFuelUp.CreatedAt));
+        var fuelUpToUpdate = request.ToDomain(user.Id, existsFuelUp.CreatedAt);
+        await _fuelUpWriteService.Update(fuelUpToUpdate);
+        if (existsFuelUp.Complete != request.Complete)
+        {
+            if (request.Complete)
+                await ReCalculateConsumptionOfCompletedFuelUp(fuelUpToUpdate);
+
+            var nextCompletedFuelUp =
+                await _fuelUpReadService.GetNextCompletedByVehicle(request.VehicleId, fuelUpToUpdate.FuelUpDate);
+            await ReCalculateConsumptionOfCompletedFuelUp(nextCompletedFuelUp, fuelUpToUpdate);
+        }
 
         await CreateStatistics(user.Id);
     }
@@ -113,5 +125,22 @@ public class FuelUpFacade:IFuelUpFacade
         var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList(), vehicles, userId);
         await _dailyStatisticWriteService.DeleteByUserId(userId);
         await _dailyStatisticWriteService.BulkAdd(vehicleStatistic.GetDailyStatistics());
+    }
+    
+    private async Task ReCalculateConsumptionOfCompletedFuelUp(FuelUp fuelUp, FuelUp? previousCompletedFuelUp = null)
+    {
+        if (!fuelUp.Complete)
+            return;
+
+        previousCompletedFuelUp ??=
+            await _fuelUpReadService.GetLastCompletedByVehicle(fuelUp.VehicleId, fuelUp.FuelUpDate);
+        var nonCompletedFuelUps = await _fuelUpReadService.GetByDateRangeAndVehicle(fuelUp.VehicleId,
+            previousCompletedFuelUp.FuelUpDate,
+            fuelUp.FuelUpDate);
+        var previousFuelUps = new List<FuelUp> { previousCompletedFuelUp };
+        previousFuelUps.AddRange(nonCompletedFuelUps);
+        fuelUp.CalculateConsumption(previousFuelUps);
+
+        await _fuelUpWriteService.Update(fuelUp);
     }
 }

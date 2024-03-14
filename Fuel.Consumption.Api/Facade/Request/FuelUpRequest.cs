@@ -16,8 +16,7 @@ public class FuelUpRequest
     public DateTime FuelUpDate { get; set; }
     public int? TimeZone { get; set; }
 
-    public FuelUp ToDomain(Guid id, string userId, DateTime? createdAt) => new(id.ToString(),
-        VehicleId,
+    public FuelUp ToDomain(string userId, DateTime? createdAt) => new(VehicleId,
         Odometer,
         Amount,
         Price,
