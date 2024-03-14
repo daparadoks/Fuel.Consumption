@@ -67,7 +67,7 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
             .ToListAsync();
 
     public async Task<IList<FuelUp>> GetByUserId(string userId) =>
-        await _collection.Find(x => x.UserId == userId).ToListAsync();
+        await _collection.Find(x => x.UserId == userId).SortBy(x=>x.FuelUpDate).ToListAsync();
 
     public async Task<IList<FuelUp>> GetByDateRangeAndVehicle(string vehicleId, DateTime startDate, DateTime endDate) =>
         await _collection.Find(x => x.VehicleId == vehicleId && x.FuelUpDate > startDate && x.FuelUpDate < endDate)

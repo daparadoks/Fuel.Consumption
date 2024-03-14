@@ -60,7 +60,7 @@ public class FuelUpFacade:IFuelUpFacade
             throw new CustomException(500, "Yakıt verisi girişinde beklenmedik bir hata oluştu.", false);
         }
 
-        //await CreateStatistics(user.Id);
+        await CreateStatistics(user.Id);
     }
 
     public async Task Update(string id, FuelUpRequest request, User user)
@@ -97,7 +97,7 @@ public class FuelUpFacade:IFuelUpFacade
             }
         }
 
-        //await CreateStatistics(user.Id);
+        await CreateStatistics(user.Id);
     }
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)

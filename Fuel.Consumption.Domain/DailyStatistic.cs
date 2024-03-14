@@ -15,33 +15,37 @@ public interface IDailyStatisticWriteService
     Task BulkAdd(IEnumerable<DailyStatistic> entities);
 }
 
-public class DailyStatistic(string userId, DateTime date, IEnumerable<DailyStatisticItem> items)
+public class DailyStatistic
 {
+    public DailyStatistic(string userId,
+        DateTime date,
+        Vehicle vehicle,
+        decimal odometer,
+        decimal distance,
+        decimal fuelAmount,
+        decimal consumption,
+        decimal fuelPrice)
+    {
+        UserId = userId;
+        Date = date;
+        Vehicle = vehicle;
+        Odometer = odometer;
+        Distance = distance;
+        FuelAmount = fuelAmount;
+        Consumption = consumption;
+        FuelPrice = fuelPrice;
+    }
+
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; }
 
-    public string UserId { get; set; } = userId;
-    public DateTime Date { get; set; } = date;
-    public IEnumerable<DailyStatisticItem> Items { get; set; } = items;
-}
-
-public class DailyStatisticItem(
-    Vehicle vehicle,
-    decimal odometer,
-    decimal distance,
-    decimal fuelAmount,
-    decimal consumption,
-    decimal fuelPrice)
-{
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
-
-    public Vehicle Vehicle { get; set; } = vehicle;
-    public decimal Odometer { get; set; } = odometer;
-    public decimal Distance { get; set; } = distance;
-    public decimal FuelAmount { get; set; } = fuelAmount;
-    public decimal Consumption { get; set; } = consumption;
-    public decimal FuelPrice { get; set; } = fuelPrice;
+    public string UserId { get; set; }
+    public DateTime Date { get; set; }
+    public Vehicle Vehicle { get; set; }
+    public decimal Odometer { get; set; }
+    public decimal Distance { get; set; }
+    public decimal FuelAmount { get; set; }
+    public decimal Consumption { get; set; }
+    public decimal FuelPrice { get; set; }
 }
