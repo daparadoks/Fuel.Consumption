@@ -1,6 +1,6 @@
 ﻿using Fuel.Consumption.Api.Application;
+using Fuel.Consumption.Api.Controllers.Request;
 using Fuel.Consumption.Api.Facade.Interface;
-using Fuel.Consumption.Api.Facade.Request;
 using Fuel.Consumption.Api.Facade.Response;
 using Fuel.Consumption.Domain;
 
@@ -59,8 +59,6 @@ public class FuelUpFacade:IFuelUpFacade
             await _fuelUpWriteService.Delete(newFuelUp.Id);
             throw new CustomException(500, "Yakıt verisi girişinde beklenmedik bir hata oluştu.", false);
         }
-
-        await CreateStatistics(user.Id);
     }
 
     public async Task Update(string id, FuelUpRequest request, User user)
@@ -96,8 +94,6 @@ public class FuelUpFacade:IFuelUpFacade
                 throw new CustomException(400, $"Yakut bilgisi güncellenirken beklenmedik bir hata oluştu.", false);
             }
         }
-
-        await CreateStatistics(user.Id);
     }
 
     public async Task<SearchResponse<FuelUpSearchResponse>> Search(SearchRequest<FuelUpSearchRequest> request, User user)
@@ -177,26 +173,6 @@ public class FuelUpFacade:IFuelUpFacade
 
         if (lastFuelUp != null && lastFuelUp.FuelUpDate >= request.FuelUpDate)
             throw new FuelUpDateIsInvalidException(request.FuelUpDate, lastFuelUp.FuelUpDate);
-    }
-    
-    private async Task CreateStatistics(string userId)
-    {
-        try
-        {
-            var fuelUpTask = _fuelUpReadService.GetByUserId(userId);
-            var vehicleTask = _vehicleService.GetByUserId(userId);
-            await Task.WhenAll(fuelUpTask, vehicleTask);
-
-            var allFuelUps = fuelUpTask.Result;
-            var vehicles = vehicleTask.Result;
-            var vehicleStatistic = new VehicleStatistic(allFuelUps.ToList(), vehicles, userId);
-            await _dailyStatisticWriteService.DeleteByUserId(userId);
-            await _dailyStatisticWriteService.BulkAdd(vehicleStatistic.GetDailyStatistics());
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, $"CreateStatistics error for user id: {userId}");
-        }
     }
     
     private async Task ReCalculateConsumptionOfCompletedFuelUp(FuelUp fuelUp, FuelUp? previousCompletedFuelUp = null)

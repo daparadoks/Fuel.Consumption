@@ -1,4 +1,4 @@
-﻿namespace Fuel.Consumption.Api.Facade.Request;
+﻿namespace Fuel.Consumption.Api.Controllers.Request;
 
 public class FuelUpSearchRequest
 {

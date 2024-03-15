@@ -1,5 +1,5 @@
-﻿using Fuel.Consumption.Api.Facade.Interface;
-using Fuel.Consumption.Api.Facade.Request;
+﻿using Fuel.Consumption.Api.Controllers.Request;
+using Fuel.Consumption.Api.Facade.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

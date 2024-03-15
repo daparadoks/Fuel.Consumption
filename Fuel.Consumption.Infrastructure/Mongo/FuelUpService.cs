@@ -88,4 +88,13 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
     public async Task<FuelUp> GetPreviousCompletedByVehicle(string vehicleId, DateTime endDate) =>
         await _collection.Find(x => x.VehicleId == vehicleId && x.Complete && x.FuelUpDate < endDate)
             .FirstOrDefaultAsync();
+
+    public async Task<IEnumerable<FuelUp>> SearchForStatistic(IEnumerable<string> vehicleIds, string userId,
+        DateTime? startDate, DateTime? endDate) =>
+        await _collection.Find(x => x.UserId == userId &&
+                vehicleIds.Contains(x.VehicleId) &&
+                !startDate.HasValue || x.FuelUpDate >= startDate &&
+                !endDate.HasValue || x.FuelUpDate <= endDate)
+            .SortBy(x => x.FuelUpDate)
+            .ToListAsync();
 }

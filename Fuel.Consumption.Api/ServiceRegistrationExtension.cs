@@ -18,6 +18,7 @@ public static class ServiceRegistrationExtension
         services.AddScoped<IBrandFacade, BrandFacade>();
         services.AddScoped<IModelGroupFacade, ModelGroupFacade>();
         services.AddScoped<IModelFacade, ModelFacade>();
+        services.AddScoped<IStatisticFacade, StatisticFacade>();
         
         services.AddScoped<IFuelUpReadService, FuelUpReadService>();
         services.AddScoped<IFuelUpWriteService, FuelUpWriteService>();

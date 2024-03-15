@@ -1,7 +1,7 @@
 ﻿using Fuel.Consumption.Domain;
 using Fuel.Consumption.Infrastructure.Constants;
 
-namespace Fuel.Consumption.Api.Facade.Request;
+namespace Fuel.Consumption.Api.Controllers.Request;
 
 public class FuelUpRequest
 {

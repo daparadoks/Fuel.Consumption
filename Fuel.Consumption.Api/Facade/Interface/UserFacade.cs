@@ -1,5 +1,5 @@
 ﻿using Fuel.Consumption.Api.Application;
-using Fuel.Consumption.Api.Facade.Request;
+using Fuel.Consumption.Api.Controllers.Request;
 using Fuel.Consumption.Api.Facade.Response;
 using Fuel.Consumption.Domain;
 using Fuel.Consumption.Infrastructure.Configs;

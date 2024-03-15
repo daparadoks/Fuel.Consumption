@@ -1,4 +1,4 @@
-﻿using Fuel.Consumption.Api.Facade.Request;
+﻿using Fuel.Consumption.Api.Controllers.Request;
 using Fuel.Consumption.Api.Facade.Response;
 using Fuel.Consumption.Domain;
 

@@ -1,6 +1,6 @@
 ﻿using Fuel.Consumption.Domain;
 
-namespace Fuel.Consumption.Api.Facade.Request;
+namespace Fuel.Consumption.Api.Controllers.Request;
 
 public class VehicleRequest
 {

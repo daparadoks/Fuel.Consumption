@@ -11,6 +11,7 @@ public interface IVehicleService
     Task<IEnumerable<Vehicle>> GetByUserId(string userId);
     Task<IEnumerable<Vehicle>> GetAll();
     Task Update(Vehicle entity);
+    Task<IEnumerable<Vehicle>> GetByIds(IList<string> ids, string userId);
 }
 
 public class Vehicle

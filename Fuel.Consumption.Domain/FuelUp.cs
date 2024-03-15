@@ -19,6 +19,7 @@ public interface IFuelUpReadService
     Task<long> CountByVehicle(string vehicleId);
     Task<FuelUp> GetPrevious(string vehicleId, DateTime endDate);
     Task<FuelUp> GetPreviousCompletedByVehicle(string vehicleId, DateTime endDate);
+    Task<IEnumerable<FuelUp>> SearchForStatistic(IEnumerable<string> vehicleIds, string userId, DateTime? startDate, DateTime? endDate);
 }
 
 public interface IFuelUpWriteService{

@@ -1,7 +1,6 @@
-﻿using Fuel.Consumption.Api.Application;
-using Fuel.Consumption.Domain;
+﻿using Fuel.Consumption.Domain;
 
-namespace Fuel.Consumption.Api.Facade.Request;
+namespace Fuel.Consumption.Api.Controllers.Request;
 
 public class RegisterRequest
 {

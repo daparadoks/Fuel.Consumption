@@ -25,7 +25,7 @@ public class ContentExistsException : CustomException
 
 public class VehicleNotFoundException : CustomException
 {
-    public VehicleNotFoundException():base(404,"Tanımsız araç")
+    public VehicleNotFoundException(bool logThis = true):base(404,"Tanımsız araç", logThis)
     {
         
     }
