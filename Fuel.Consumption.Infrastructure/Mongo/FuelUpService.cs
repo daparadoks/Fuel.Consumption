@@ -97,4 +97,8 @@ public class FuelUpReadService:Repository<FuelUp>, IFuelUpReadService
                 !endDate.HasValue || x.FuelUpDate <= endDate)
             .SortBy(x => x.FuelUpDate)
             .ToListAsync();
+
+    public async Task<IEnumerable<FuelUp>> GetByVehicle(string vehicleId) =>
+        await _collection.Find(x => x.VehicleId == vehicleId)
+            .ToListAsync();
 }

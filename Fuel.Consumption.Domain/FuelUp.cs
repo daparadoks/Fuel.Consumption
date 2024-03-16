@@ -20,12 +20,14 @@ public interface IFuelUpReadService
     Task<FuelUp> GetPrevious(string vehicleId, DateTime endDate);
     Task<FuelUp> GetPreviousCompletedByVehicle(string vehicleId, DateTime endDate);
     Task<IEnumerable<FuelUp>> SearchForStatistic(IEnumerable<string> vehicleIds, string userId, DateTime? startDate, DateTime? endDate);
+    Task<IEnumerable<FuelUp>> GetByVehicle(string vehicleId);
 }
 
 public interface IFuelUpWriteService{
     Task<FuelUp> Add(FuelUp entity);
     Task Update(FuelUp entity);
     Task Delete(string id);
+    Task BulkAdd(IEnumerable<FuelUp> entities);
 }
 
 public class FuelUp

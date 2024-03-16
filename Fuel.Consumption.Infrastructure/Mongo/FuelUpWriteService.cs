@@ -18,4 +18,5 @@ public class FuelUpWriteService : Repository<FuelUp>, IFuelUpWriteService
     }
     public async Task Update(FuelUp entity) => await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity);
     public async Task Delete(string id) => await _collection.DeleteOneAsync(x => x.Id == id);
+    public async Task BulkAdd(IEnumerable<FuelUp> entities) => await _collection.InsertManyAsync(entities);
 }

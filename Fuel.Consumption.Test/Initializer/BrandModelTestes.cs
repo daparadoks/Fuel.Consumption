@@ -32,7 +32,7 @@ public class BrandModelTestes : IClassFixture<FuelAppTestStartup>
     [Fact]
     public async void Create_Brands()
     {
-        var brandNames = new List<string> { "Fiat", "Hyundai", "Renault" };
+        var brandNames = new List<string> { "Fiat", "Hyundai", "Renault", "Honda", "Yamaha", "Bajaj", "Sym" };
 
         foreach (var brandName in brandNames)
         {
@@ -49,23 +49,28 @@ public class BrandModelTestes : IClassFixture<FuelAppTestStartup>
             else
                 await _brandWriteService.Update(brand);
         }
-        
 
-        var modelGroupAndBrands = new Dictionary<string, string>
+
+        var modelGroupAndBrands = new List<ModelGroupTestDto>
         {
-            { "Fiat", "Egea" },
-            { "Hyundai", "i20" },
-            { "Renault", "Megane" }
+            new("Fiat", "Egea"),
+            new("Hyundai", "i20"),
+            new("Renault", "Megane"),
+            new("Honda", "Forza"),
+            new("Yamaha", "X-Max"),
+            new("Sym", "Joymax"),
+            new("Sym", "Jet14X"),
+            new("Bajaj", "Pulsar"),
         };
 
         foreach (var modelGroupAndBrand in modelGroupAndBrands)
         {
-            var brand = await _brandReadService.GetByName(modelGroupAndBrand.Key);
+            var brand = await _brandReadService.GetByName(modelGroupAndBrand.Brand);
             if (brand == null)
                 continue;
 
-            var existsModelGroup = await _modelGroupReadService.GetAnyByName(modelGroupAndBrand.Value);
-            var modelGroup = new ModelGroup(existsModelGroup?.Name ?? modelGroupAndBrand.Value,
+            var existsModelGroup = await _modelGroupReadService.GetAnyByName(modelGroupAndBrand.ModelGroup);
+            var modelGroup = new ModelGroup(existsModelGroup?.Name ?? modelGroupAndBrand.ModelGroup,
                 true,
                 brand);
 
@@ -82,7 +87,12 @@ public class BrandModelTestes : IClassFixture<FuelAppTestStartup>
         {
             new("1.3 Multijet Easy", "Egea", (int)FuelType.Diesel, 2016, null),
             new("1.4 Mpi Elite Plus", "i20", (int)FuelType.Gasoline, 2016, null),
-            new("1.3 Tce Icon", "Megane", (int)FuelType.Gasoline, 2016, null)
+            new("1.3 Tce Icon", "Megane", (int)FuelType.Gasoline, 2016, null),
+            new("300 ABS", "Forza", (int)FuelType.Gasoline, 2016, null),
+            new("400 ABS", "X-Max", (int)FuelType.Gasoline, 2013, 2019),
+            new("250in", "Joymax", (int)FuelType.Gasoline, 2010, 2019),
+            new("EU5", "Jet 14X", (int)FuelType.Gasoline, 2023, null),
+            new("200 NS", "Pulsar", (int)FuelType.Gasoline, 2014, null),
         };
 
         foreach (var modelTestDto in modelsDto)
@@ -128,4 +138,16 @@ public class ModelTestDto
         existsModel?.ProductionEnd ?? ProductionEnd,
         true,
         modelGroup);
+}
+
+public class ModelGroupTestDto
+{
+    public ModelGroupTestDto(string brand, string modelGroup)
+    {
+        Brand = brand;
+        ModelGroup = modelGroup;
+    }
+
+    public string Brand { get; }
+    public string ModelGroup { get; }
 }
