@@ -1,21 +1,21 @@
-﻿using Fuel.Consumption.Api.Application;
+﻿using ClosedXML.Excel;
+using Fuel.Consumption.Api.Application;
 using Fuel.Consumption.Api.Controllers.Request;
 using Fuel.Consumption.Api.Facade.Interface;
 using Fuel.Consumption.Domain;
-using IronXL;
 
 namespace Fuel.Consumption.Api.Facade;
 
 public class ImportDataFacade : IImportDataFacade
 {
-    private const int ConsumptionRow = 2;
-    private const int OdometerRow = 3;
-    private const int AmountRow = 5;
-    private const int PriceRow = 6;
-    private const int CityPercentageRow = 7;
-    private const int DateRow = 8;
-    private const int MissedRow = 12;
-    private const int PartialRow = 13;
+    private const int ConsumptionRow = 3;
+    private const int OdometerRow = 4;
+    private const int AmountRow = 6;
+    private const int PriceRow = 7;
+    private const int CityPercentageRow = 8;
+    private const int DateRow = 9;
+    private const int MissedRow = 13;
+    private const int PartialRow = 14;
 
     private readonly ILogger<ImportDataFacade> _logger;
     private readonly IFuelUpReadService _fuelUpReadService;
@@ -39,22 +39,23 @@ public class ImportDataFacade : IImportDataFacade
         if (vehicle == null || vehicle.UserId != user.Id)
             throw new VehicleNotFoundException();
         
-        var workBook = WorkBook.Load(request.ToStream());
-        var workSheet = workBook.DefaultWorkSheet;
+        //var workBook = WorkBook.Load(request.ToStream());
+        var workBook = new XLWorkbook(request.ToStreamV2());
+        var workSheet = workBook.Worksheet(1);
 
         var fuelUps = new List<FuelUp>();
-        var rowCount = workSheet.RowCount;
-        for (int i = 0; i < rowCount; i++)
+        var rowCount = workSheet.RowCount();
+        for (int i = 1; i <= rowCount; i++)
         {
-            var row = workSheet.Rows[i];
-            fuelUps.Add(new FuelUpImport(row.Columns[ConsumptionRow].DecimalValue,
-                row.Columns[OdometerRow].DecimalValue,
-                row.Columns[AmountRow].DecimalValue,
-                row.Columns[PriceRow].DecimalValue,
-                row.Columns[CityPercentageRow].IntValue,
-                row.Columns[DateRow].DateTimeValue,
-                row.Columns[MissedRow].IntValue,
-                row.Columns[PartialRow].IntValue).ToFuelUp(user.Id, vehicle));
+            var row = workSheet.Row(i+1);
+            fuelUps.Add(new FuelUpImport(row.Cell(ConsumptionRow).GetValue<decimal>(),
+                row.Cell(OdometerRow).GetValue<decimal>(),
+                row.Cell(AmountRow).GetValue<decimal>(),
+                row.Cell(PriceRow).GetValue<decimal>(),
+                row.Cell(CityPercentageRow).GetValue<int>(),
+                row.Cell(DateRow).GetValue<string>(),
+                row.Cell(MissedRow).GetValue<int>(),
+                row.Cell(PartialRow).GetValue<int>()).ToFuelUp(user.Id, vehicle));
         }
 
         var existsFuelUps = await _fuelUpReadService.GetByVehicle(request.VehicleId);

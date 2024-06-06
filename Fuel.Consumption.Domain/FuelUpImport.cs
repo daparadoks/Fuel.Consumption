@@ -2,14 +2,15 @@
 
 public class FuelUpImport
 {
-    public FuelUpImport(decimal consumption, decimal odometer, decimal amount, decimal price, int cityPercentage, DateTime? date, int missed, int partial)
+    public FuelUpImport(decimal consumption, decimal odometer, decimal amount, decimal price, int cityPercentage, string date, int missed, int partial)
     {
         Consumption = consumption;
         Odometer = (int)odometer;
         Amount = amount;
         Price = price;
         CityPercentage = cityPercentage;
-        Date = date ?? DateTime.Now;
+        var dateParsed = DateTime.TryParse(date, out var parsedDate);
+        Date = dateParsed ? parsedDate : DateTime.Now;
         Complete = missed == 0 && partial == 0;
     }
 
